@@ -1,0 +1,33 @@
+# Core Python libraries
+torch>=2.0.0
+torchvision
+torchaudio
+
+# Machine Learning and Data Science
+datasets
+transformers
+bitsandbytes
+wandb
+
+# Hugging Face ecosystem
+huggingface_hub
+
+# Swift ML framework
+ms-swift
+
+# Data manipulation and visualization
+pandas
+tqdm
+Pillow
+
+# Jupyter notebooks
+jupyter
+ipykernel
+
+# Development and utilities
+pathlib-mate
+
+# Optional: For enhanced development experience
+matplotlib
+seaborn
+scikit-learn
