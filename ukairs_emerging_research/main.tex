@@ -1,0 +1,112 @@
+\documentclass[sigconf]{acmart}
+
+% UKAIRS Emerging Research / Provocation submission scaffold.
+% Target length: 2 main pages, with references allowed on an additional page.
+% Accessibility: add \Description{...} to every figure and keep tables simple.
+
+\settopmatter{printacmref=false}
+\setcopyright{none}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+
+\acmConference[UKAIRS 2026]{UK AI Research Symposium}{2026}{United Kingdom}
+\acmBooktitle{UK AI Research Symposium (UKAIRS 2026)}
+\acmYear{2026}
+\acmDOI{}
+\acmISBN{}
+
+\title{Auditing Agentic Vision-Language Reasoning in GI Endoscopy}
+\subtitle{Toward Faithful Evidence-Grounded Clinical AI}
+
+\author{Dawud Izza}
+\affiliation{%
+  \institution{University of York}
+  \city{York}
+  \country{United Kingdom}
+}
+\email{TODO: your.email@york.ac.uk}
+
+\begin{abstract}
+Medical vision-language models (VLMs) are increasingly able to answer questions about clinical images, yet it remains unclear whether their generated explanations are faithful to the visual evidence used for decision-making. This concern becomes sharper in agentic VLM systems, where memory, tool use, and iterative reasoning can create plausible but weakly grounded evidence chains. This emerging research proposal investigates how agentic VLM workflows for gastrointestinal (GI) endoscopy can be audited for evidence faithfulness. We propose a framework for evaluating final answers, intermediate tool outputs, memory updates, and multimodal explanations using visual perturbation, counterfactual evidence, grounding consistency, and clinician-facing calibration tasks. The intended contribution is a reusable evaluation protocol and failure-mode taxonomy for safe, evidence-grounded agentic medical AI.
+\end{abstract}
+
+\keywords{vision-language models, agentic AI, medical AI, GI endoscopy, explainability, clinical decision support, multimodal reasoning}
+
+\begin{document}
+
+\maketitle
+
+\section{Theme and Research Topic}
+
+\textbf{Primary UKAIRS theme:} Track B, Life and Health.
+
+\textbf{Research topics:} AI for Clinical Decision Support; AI for Multimodal Health Data.
+
+\textbf{Secondary relevance:} Track C, Algorithms, Agents and Theory; Track F, Synergistic Human-AI Collaboration.
+
+\section{Motivation}
+
+Gastrointestinal endoscopy is a visually complex and high-stakes clinical domain. Recent medical VLMs show promise for visual question answering over endoscopic images, but correct answers alone are insufficient for clinical trust. A model may produce an answer and explanation that appear clinically plausible while relying on irrelevant image regions, spurious visual features, or post-hoc language rationales.
+
+Agentic VLM systems may offer a more realistic model of clinical reasoning because they can use tools, maintain memory, and iteratively gather evidence before reaching a decision. However, these same capabilities introduce new safety questions. If an agent updates its memory using unreliable evidence, chooses inappropriate tools, or preserves a misleading intermediate conclusion, the final answer may become more persuasive without becoming more faithful.
+
+\section{Related Work and Gap}
+
+Medical VLMs have been explored for image-based clinical question answering, including GI endoscopy VQA. Recent agentic endoscopy systems, such as EndoAgent/EndoCogniAgent, extend VLM-style reasoning with memory, adaptive tool selection, and iterative vision-to-decision workflows~\cite{endocogniagent2026}. Existing evaluations largely emphasise task accuracy and benchmark performance. Less is known about whether intermediate agent states, tool outputs, explanations, and memory updates remain faithful to the underlying visual evidence. This creates a safety-critical gap for clinical AI: an agent can produce coherent reasoning while accumulating ungrounded evidence.
+
+\section{Research Questions}
+
+\textbf{RQ1:} Do agentic VLM systems for GI endoscopy base their answers on faithful visual and semantic evidence?
+
+\textbf{RQ2:} How do intermediate agent states, including tool outputs and memory updates, affect final answer faithfulness?
+
+\textbf{RQ3:} Can counterfactual and perturbation-based tests identify clinically important failure modes that are hidden by answer accuracy alone?
+
+\section{Proposed Framework}
+
+The proposed workflow compares a standalone VLM baseline with an agentic VLM pipeline for GI endoscopy. The standalone baseline receives an image or video frame and a clinical question, then produces an answer and optional explanation. The agentic pipeline additionally supports evidence acquisition steps such as lesion localisation, segmentation, retrieval of similar cases, explanation generation, and validation before producing the final answer.
+
+\begin{figure}[t]
+  \centering
+  \fbox{\parbox{0.92\columnwidth}{\centering
+  GI image/question $\rightarrow$ VLM planner $\rightarrow$ tool use and evidence state $\rightarrow$ validation $\rightarrow$ answer and explanation
+  }}
+  \caption{Planned agentic VLM workflow for evidence-grounded GI endoscopy reasoning.}
+  \Description{A left-to-right workflow showing a gastrointestinal image and question entering a VLM planner, followed by tool use and evidence state, validation, and final answer with explanation.}
+  \label{fig:workflow}
+\end{figure}
+
+The key object of analysis is not only the final answer, but the full evidence chain. Each intermediate step can be audited for whether it is visually grounded, semantically consistent with the question, and causally relevant to the final decision.
+
+\section{Evaluation Plan}
+
+\textbf{Visual faithfulness.} Salient or tool-identified regions will be removed, blurred, or masked before re-running inference. Faithful explanations should degrade more rapidly under targeted deletion than under random or background deletion.
+
+\textbf{Counterfactual evidence.} Pathology regions will be removed or modified where annotations permit. The agent's explanation, memory state, and answer should change appropriately when clinically relevant evidence is altered.
+
+\textbf{Tool-output corruption.} Intermediate tool outputs will be perturbed, for example by shifting a segmentation mask or replacing a retrieved case. This tests whether the agent validates evidence or blindly incorporates it into its reasoning state.
+
+\textbf{Grounding consistency.} Medical terms in explanations, such as polyp, ulcer, lesion, or bleeding, will be linked to image regions and compared against available annotations.
+
+\textbf{Human calibration.} A later clinician-facing study will test whether visual and multimodal explanations help users detect incorrect model outputs, or whether plausible explanations increase over-reliance.
+
+\section{Expected Contributions}
+
+This project aims to contribute: (1) an evaluation framework for auditing evidence faithfulness in agentic medical VLM workflows; (2) a taxonomy of failure modes involving ungrounded tool use, misleading memory updates, and post-hoc rationales; and (3) an early benchmark protocol for comparing standalone VLMs with agentic VLM systems in GI endoscopy.
+
+\section{Relevance to UKAIRS}
+
+This work aligns with UKAIRS by connecting clinical decision support, agentic AI, multimodal health data, and responsible human-AI collaboration. It addresses a timely question for the UK AI research community: how should emerging agentic systems be evaluated before they are trusted in high-stakes clinical settings?
+
+\section{Current Status}
+
+Preliminary work has begun on GI VQA using a fine-tuned medical VLM pipeline and attention-based explanation extraction. The next stage is to convert this into an agentic evidence-validation workflow and evaluate whether each reasoning step remains grounded in clinically relevant visual evidence.
+
+\begin{acks}
+TODO: Add supervisor, funding, CDT, UKRI, or institutional acknowledgements if appropriate.
+\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

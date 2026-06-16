@@ -2,7 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
-
+Task_1_Sample_Notebook.ipynb
 # C extensions
 *.so
 
