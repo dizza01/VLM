@@ -5,15 +5,15 @@ This folder contains an Overleaf-friendly LaTeX scaffold for a UKAIRS Emerging R
 ## Files
 
 - `main.tex`: ACM `sigconf` two-column submission scaffold.
-- `references.bib`: placeholder references to verify before submission.
+- `references.bib`: submission references for the GI VQA, medical LVLM hallucination, and agentic endoscopy literature.
 
 ## Notes
 
 - Target length: 2 main pages. References may be on an additional page, based on the UKAIRS guidance.
 - Use the ACM/Overleaf template with `\documentclass[sigconf]{acmart}`.
 - Every figure should include `\Description{...}` for accessibility.
-- Replace all `TODO` fields before submission.
 - Verify author names, publication dates, and citation metadata before final export.
+- Local LaTeX tools were not detected in this workspace during preparation. Compile the final PDF in Overleaf or another environment with `latexmk` or `pdflatex` installed.
 
 ## Suggested Overleaf Sync
 

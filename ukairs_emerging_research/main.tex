@@ -27,7 +27,7 @@
 \email{dawud.izza@york.ac.uk}
 
 \begin{abstract}
-Medical vision-language models (VLMs) are increasingly able to answer questions about clinical images, yet it remains unclear whether their generated explanations are faithful to the visual evidence used for decision-making. This concern becomes sharper in agentic VLM systems, where memory, tool use, and iterative reasoning can create plausible but weakly grounded evidence chains. Using gastrointestinal (GI) endoscopy as a case study, this research investigates how agentic VLM workflows can be evaluated for faithfulness and reliability. The proposed framework evaluates final answers, intermediate tool outputs, memory updates, and multimodal explanations using visual perturbation, counterfactual evidence, grounding consistency, and clinician-facing calibration tasks. The intended contribution is a reusable evaluation protocol and failure-mode taxonomy for safe, evidence-grounded agentic medical AI.
+Medical vision-language models (VLMs) are increasingly able to answer questions about clinical images, yet it remains unclear whether their generated explanations are faithful to the visual evidence used for decision-making. This concern becomes sharper in agentic VLM systems, where memory, tool use, and iterative reasoning can create plausible but weakly grounded evidence chains. This emerging research uses gastrointestinal (GI) endoscopy as a case study to ask how VQA models and future agentic workflows should be audited before they are treated as evidence-grounded clinical decision support. Building on preliminary fine-tuning and explanation extraction for GI VQA, the proposed framework evaluates final answers, intermediate tool outputs, memory updates, and multimodal explanations using visual perturbation, counterfactual evidence, grounding consistency, and clinician-facing calibration tasks. The intended contribution is a reusable evaluation protocol and failure-mode taxonomy for safe, evidence-grounded agentic medical AI.
 \end{abstract}
 
 \keywords{vision-language models, agentic AI, medical AI, GI endoscopy, explainability, clinical decision support, multimodal reasoning}
@@ -51,7 +51,7 @@ Agentic VLM systems may offer a more realistic model of clinical reasoning becau
 
 \section{Related Work and Gap}
 
-Medical VLMs have been explored for image-based clinical question answering, including GI endoscopy VQA. Recent agentic endoscopy systems, such as EndoAgent/EndoCogniAgent, extend VLM-style reasoning with memory, adaptive tool selection, and iterative vision-to-decision workflows~\cite{endocogniagent2026}. Existing evaluations largely emphasise task accuracy and benchmark performance. Less is known about whether intermediate agent states, tool outputs, explanations, and memory updates remain faithful to the underlying visual evidence. This creates a safety-critical gap for clinical AI: an agent can produce coherent reasoning while accumulating ungrounded evidence.
+GI endoscopy VQA has recently been formalised through datasets and shared tasks such as Kvasir-VQA-x1 and Medico 2025, which provide image-question-answer pairs for evaluating medical reasoning over gastrointestinal imagery~\cite{gautam2025kvasirvqa,gautam2025medico}. In parallel, medical LVLM benchmarks such as MedHEval show that hallucinations remain a central risk for medical vision-language systems~\cite{chang2025medheval}. Recent agentic endoscopy systems, such as EndoCogniAgent, extend VLM-style reasoning with memory, adaptive tool selection, and iterative vision-to-decision workflows~\cite{tang2025endocogniagent}. Existing evaluations largely emphasise task accuracy, benchmark performance, or hallucination rates. Less is known about whether intermediate agent states, tool outputs, explanations, and memory updates remain faithful to the underlying visual evidence. This creates a safety-critical gap for clinical AI: an agent can produce coherent reasoning while accumulating ungrounded evidence.
 
 \section{Research Questions}
 
@@ -63,7 +63,7 @@ Medical VLMs have been explored for image-based clinical question answering, inc
 
 \section{Proposed Framework}
 
-The proposed workflow compares a standalone VLM baseline with an agentic VLM pipeline for GI endoscopy. The standalone baseline receives an image or video frame and a clinical question, then produces an answer and optional explanation. The agentic pipeline additionally supports evidence acquisition steps such as lesion localisation, segmentation, retrieval of similar cases, explanation generation, and validation before producing the final answer.
+The proposed workflow compares a standalone VLM baseline with an agentic VLM pipeline for GI endoscopy. The standalone baseline receives an image or video frame and a clinical question, then produces an answer and optional explanation. The agentic pipeline additionally supports planned evidence acquisition steps such as lesion localisation, segmentation, retrieval of similar cases, explanation generation, and validation before producing the final answer.
 
 \begin{figure}[t]
   \centering
@@ -99,7 +99,7 @@ This work aligns with UKAIRS by connecting clinical decision support, agentic AI
 
 \section{Current Status}
 
-Preliminary work has begun on GI VQA using a fine-tuned medical VLM pipeline and attention-based explanation extraction. The next stage is to convert this into an agentic evidence-validation workflow and evaluate whether each reasoning step remains grounded in clinically relevant visual evidence.
+Preliminary work has begun with a PaliGemma-based GI VQA pipeline. A notebook fine-tunes \texttt{google/paligemma-3b-pt-224} on Kvasir-VQA-x1 using QLoRA/LoRA, 4-bit quantisation, a frozen vision encoder, and sampled validation for resource-constrained experimentation. Initial inference checks use a LoRA adapter for GI question answering, while an explanation wrapper extracts attention maps, Grad-CAM-style saliency, token-level confidence scores, and medical terminology from generated answers. These components are preliminary infrastructure for the proposed audit; they do not yet constitute a completed clinical validation. The next stage is to convert this baseline into an agentic evidence-validation workflow and evaluate whether each reasoning step remains grounded in clinically relevant visual evidence.
 
 \begin{acks}
 This work is supported by UK Research & Innovation (UKRI) grant number EP/Y030540/1
