@@ -51,7 +51,7 @@ Agentic VLM systems may offer a more realistic model of clinical reasoning becau
 
 \section{Related Work and Gap}
 
-GI endoscopy VQA has recently been formalised through datasets and shared tasks such as Kvasir-VQA-x1 and Medico 2025, which provide image-question-answer pairs for evaluating medical reasoning over gastrointestinal imagery~\cite{gautam2025kvasirvqa,gautam2025medico}. In parallel, medical LVLM benchmarks such as MedHEval show that hallucinations remain a central risk for medical vision-language systems~\cite{chang2025medheval}. Recent agentic endoscopy systems, such as EndoCogniAgent, extend VLM-style reasoning with memory, adaptive tool selection, and iterative vision-to-decision workflows~\cite{tang2025endocogniagent}. Existing evaluations largely emphasise task accuracy, benchmark performance, or hallucination rates. Less is known about whether intermediate agent states, tool outputs, explanations, and memory updates remain faithful to the underlying visual evidence. This creates a safety-critical gap for clinical AI: an agent can produce coherent reasoning while accumulating ungrounded evidence.
+GI endoscopy VQA has recently been formalised through datasets and shared tasks such as Kvasir-VQA-x1 and Medico 2025, which provide image-question-answer pairs for evaluating medical reasoning over gastrointestinal imagery~\cite{gautam2025kvasirvqa,gautam2025medico}. In parallel, medical LVLM benchmarks such as MedHEval show that hallucinations remain a central risk for medical vision-language systems~\cite{chang2025medheval}. Recent agentic endoscopy systems, such as EndoCogniAgent, extend VLM-style reasoning with memory, adaptive tool selection, and iterative vision-to-decision workflows~\cite{tang2025endocogniagent}. Emerging challenge-style evaluations of clinical agents motivate hidden stress tests in which structured reasoning traces are judged against incomplete, longitudinal, and sometimes conflicting multimodal evidence, with unsupported or hallucinated claims penalised even when the final prediction is plausible. Existing evaluations largely emphasise task accuracy, benchmark performance, or hallucination rates. Less is known about whether intermediate agent states, tool outputs, explanations, and memory updates remain faithful to the underlying visual evidence. This creates a safety-critical gap for clinical AI: an agent can produce coherent reasoning while accumulating ungrounded evidence.
 
 \section{Research Questions}
 
@@ -75,7 +75,7 @@ The proposed workflow compares a standalone VLM baseline with an agentic VLM pip
   \label{fig:workflow}
 \end{figure}
 
-The key object of analysis is not only the final answer, but the full evidence chain. Each intermediate step can be audited for whether it is visually grounded, semantically consistent with the question, and causally relevant to the final decision.
+The key object of analysis is not only the final answer, but the full evidence chain. Each intermediate step can be audited for whether it is visually grounded, semantically consistent with the question, and causally relevant to the final decision. This is particularly important because self-consistency does not guarantee faithfulness: memory, reflection, and tool use can preserve or amplify an initially ungrounded observation. Inspired by structured clinical-agent challenges, the planned audit will also test whether agents acknowledge missing evidence, resolve conflicts between tool outputs, and avoid importing unsupported findings into the reasoning trace.
 
 \section{Evaluation Plan}
 
