@@ -27,7 +27,7 @@
 \email{dawud.izza@york.ac.uk}
 
 \begin{abstract}
-Medical vision-language models (VLMs) are increasingly able to answer questions about clinical images, yet it remains unclear whether their generated explanations are faithful to the visual evidence used for decision-making. This concern becomes sharper in agentic VLM systems, where memory, tool use, and iterative reasoning can create plausible but weakly grounded evidence chains. This emerging research uses gastrointestinal (GI) endoscopy as a case study to ask how VQA models and future agentic workflows should be audited before they are treated as evidence-grounded clinical decision support. Building on preliminary fine-tuning and explanation extraction for GI VQA, the proposed framework evaluates final answers, intermediate tool outputs, memory updates, and multimodal explanations using visual perturbation, counterfactual evidence, grounding consistency, and clinician-facing calibration tasks. The intended contribution is a reusable evaluation protocol and failure-mode taxonomy for safe, evidence-grounded agentic medical AI.
+Medical vision-language models (VLMs) are increasingly able to answer questions about clinical images, yet it remains unclear whether their generated explanations are faithful to the visual evidence used for decision-making. This concern becomes sharper in agentic VLM systems, where memory, tool use, and iterative reasoning can create plausible but weakly grounded evidence chains. This emerging research uses gastrointestinal (GI) endoscopy as a case study to ask how VQA models and future agentic workflows should be audited before they are treated as evidence-grounded clinical decision support. Building on preliminary fine-tuning and explanation extraction for GI VQA, the proposed framework evaluates final answers, intermediate tool outputs, memory updates, and multimodal explanations using visual perturbation, counterfactual evidence, grounding consistency, and clinician-facing calibration tasks. The intended contribution is a reusable evaluation protocol and framework for characterising grounding and reasoning risks in safe, evidence-grounded agentic medical AI.
 \end{abstract}
 
 \keywords{vision-language models, agentic AI, medical AI, GI endoscopy, explainability, clinical decision support, multimodal reasoning}
@@ -67,7 +67,7 @@ Emerging challenge-style evaluations of clinical agents motivate hidden stress t
 
 \textbf{RQ2:} How do intermediate agent states, including tool outputs and memory updates, affect final answer faithfulness?
 
-\textbf{RQ3:} Can counterfactual and perturbation-based tests identify clinically important failure modes that are hidden by answer accuracy alone?
+\textbf{RQ3:} Can counterfactual and perturbation-based tests identify clinically important grounding and reasoning risks that are hidden by answer accuracy alone?
 
 \section{Proposed Framework}
 
@@ -99,7 +99,7 @@ The key object of analysis is not only the final answer, but the full evidence c
 
 \section{Expected Contributions}
 
-This project aims to contribute: (1) an evaluation framework for auditing evidence faithfulness in agentic medical VLM workflows; (2) a taxonomy of failure modes involving ungrounded tool use, misleading memory updates, and post-hoc rationales; and (3) an early benchmark protocol for comparing standalone VLMs with agentic VLM systems in GI endoscopy.
+This project aims to contribute: (1) an evaluation framework for auditing evidence faithfulness in agentic medical VLM workflows; (2) a framework for characterising grounding and reasoning risks involving ungrounded tool use, misleading memory updates, and post-hoc rationales; and (3) an early benchmark protocol for comparing standalone VLMs with agentic VLM systems in GI endoscopy.
 
 \section{Current Status}
 
