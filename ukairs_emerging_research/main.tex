@@ -69,7 +69,7 @@ The proposed workflow compares a standalone VLM baseline with an agentic VLM pip
   \label{fig:workflow}
 \end{figure}
 
-The key object of analysis is not only the final answer, but the full evidence chain. Each intermediate step can be audited for whether it is visually grounded, semantically consistent with the question, appropriately uncertain, and causally relevant to the final decision. This is particularly important because self-consistency does not guarantee faithfulness: memory, reflection, and tool use can preserve or amplify an initially ungrounded observation. Inspired by structured clinical-agent challenges, the planned audit will also test whether agents acknowledge missing evidence, resolve conflicts between tool outputs, express uncertainty when evidence is insufficient, and avoid importing unsupported findings into the reasoning trace.
+The key object of analysis is not only the final answer, but the full evidence chain. Each intermediate step can be audited for whether it is visually grounded, semantically consistent with the question, appropriately uncertain, and causally relevant to the final decision. This is particularly important to understand if memory, reflection, and tool use can preserve or amplify an initially ungrounded observation. The planned audit will also test whether agents acknowledge missing evidence, resolve conflicts between tool outputs, express uncertainty when evidence is insufficient, and avoid importing unsupported findings into the reasoning trace.
 
 \section{Evaluation Plan}
 
