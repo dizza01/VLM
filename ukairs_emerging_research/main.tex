@@ -36,12 +36,7 @@ Medical vision-language models (VLMs) are able to answer questions about clinica
 
 \maketitle
 
-\section{Theme and Research Topic}
-
-\textbf{UKAIRS theme:} Track B, Life and Health.
-
-\textbf{Research topics:} AI for Clinical Decision Support; AI for Multimodal Health Data.
-
+\noindent\textbf{UKAIRS theme/topic:} Track B, Life and Health; AI for Clinical Decision Support; AI for Multimodal Health Data.
 
 \section{Motivation}
 
@@ -84,7 +79,7 @@ Second, multimodal explanations will be assessed for clarity, coherence, medical
 
 To move beyond final outputs, the agentic setting will additionally require a structured reasoning trace for each case. Inspired by clinical-agent challenge objectives, each trace will record which evidence was used, which tool outputs were accepted or rejected, how uncertainty was represented, and how missing or conflicting evidence was handled. Unsupported, contradictory, or hallucinated claims in the trace will be treated as reasoning-risk events even when the final answer is correct.
 
-Uncertainty quantification will be evaluated as a process-level safety signal. The study will examine whether confidence, predictive entropy, answer disagreement across repeated or ensemble-style runs, and selective abstention behaviour track answer correctness, explanation faithfulness, missing information, and conflicting evidence. Calibration will be assessed using reliability analysis and proper scoring rules, and uncertainty should increase when the available evidence is ambiguous, insufficient, or inconsistent with the reasoning trace.
+Uncertainty quantification will be evaluated as a process-level safety signal, following established approaches for estimating predictive uncertainty in deep learning~\cite{kendall2017uncertainties}. The study will examine whether confidence, predictive entropy, answer disagreement across repeated or ensemble-style runs, and selective abstention behaviour track answer correctness, explanation faithfulness, missing information, and conflicting evidence. Calibration will be assessed using reliability analysis and proper scoring rules, and uncertainty should increase when the available evidence is ambiguous, insufficient, or inconsistent with the reasoning trace.
 
 Robustness to agent-level errors will be evaluated by corrupting intermediate evidence. Example interventions include shifting a segmentation mask, altering a region proposal, replacing a retrieved case with an irrelevant example, or injecting conflicting evidence into memory. The analysis will determine whether the agent detects inconsistencies, seeks corroborating evidence, acknowledges missing information, or incorporates corrupted evidence uncritically.
 
