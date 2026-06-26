@@ -90,10 +90,6 @@ Finally, a clinician-facing human evaluation will compare answer-only, visual-ex
 
 Preliminary work has explored GI polyp segmentation with U-Net and transformer-based models, together with visual explanation and uncertainty-estimation tools. This earlier pipeline motivates the shift from pixel-level segmentation evaluation toward uncertainty-aware, evidence-grounded VQA and agentic reasoning. Current work has begun with a PaliGemma-based GI VQA pipeline. A notebook fine-tunes \texttt{google/paligemma-3b-pt-224} on Kvasir-VQA-x1 using QLoRA/LoRA, 4-bit quantisation, a frozen vision encoder, and sampled validation for resource-constrained experimentation. Initial inference checks use a LoRA adapter for GI question answering, while an explanation wrapper extracts attention maps, Grad-CAM-style saliency, token-level confidence scores, and medical terminology from generated answers. These components are preliminary infrastructure for the proposed audit; they do not yet constitute a completed clinical validation. The next stage is to convert this baseline into an agentic evidence-validation workflow and evaluate whether each reasoning step remains grounded in clinically relevant visual evidence.
 
-\section*{LLM Use Statement}
-
-OpenAI ChatGPT was used to assist with editing, and LaTeX formatting. The author reviewed, revised, and takes responsibility for the final submission.
-
 \begin{acks}
 This work is supported by UK Research & Innovation (UKRI) grant number EP/Y030540/1
 \end{acks}
