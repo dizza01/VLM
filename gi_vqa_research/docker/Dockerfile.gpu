@@ -1,0 +1,23 @@
+# Reference environment reproduced from the organizer starter runtime.
+# Validate this image with configs/study1/smoke.yaml before assigning a release tag.
+FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HF_HOME=/workspace/cache/huggingface \
+    WANDB_DIR=/workspace/runs/wandb
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git tmux curl ca-certificates libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/gi-vqa-research
+COPY pyproject.toml README.md ./
+COPY src ./src
+RUN python -m pip install --no-cache-dir --upgrade pip \
+    && python -m pip install --no-cache-dir ".[gpu]"
+
+WORKDIR /workspace/gi_vqa_research
+CMD ["bash"]
+

@@ -1,0 +1,36 @@
+# Local environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+*.key
+*.pem
+
+# Data and model caches
+data/*
+!data/README.md
+.cache/
+hf_cache/
+
+# Generated run artifacts
+runs/*
+!runs/README.md
+checkpoints/
+predictions/
+attributions/
+perturbations/
+logs/
+
+# Notebook-generated files
+notebooks/generated/
+
+# Local infrastructure state
+infra/gcp/local.env
+infra/gcp/*.auto.tfvars
+
