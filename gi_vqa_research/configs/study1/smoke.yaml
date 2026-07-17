@@ -13,10 +13,53 @@ data:
 model:
   base_model: google/paligemma-3b-pt-224
   base_model_revision: 35e4f46485b4d07967e7e9935bc3786aad50687c
+  backend: transformers-paligemma
+  condition: base
   adapter: null
   adapter_revision: null
+  device: cuda
   precision: float16
-  quantization: bnb-nf4-4bit
+  quantization: none
+  attn_implementation: eager
+  trust_remote_code: false
+  processor_use_fast: false
+  prompt_template: paligemma
+
+generation:
+  max_new_tokens: 64
+  do_sample: false
+  temperature: null
+  num_beams: 1
+  batch_size: 1
+  return_token_logprobs: true
+
+target_scoring:
+  target_source: saved_prediction
+  reduction: mean_logprob
+  include_eos: false
+  batch_size: 1
+  verify_generation_score: true
+  absolute_tolerance: 0.001
+
+attribution:
+  methods:
+    - decoder_answer_to_image_attention
+    - answer_conditioned_grad_cam
+  target_source: saved_prediction
+  require_prediction_reproduction: true
+  normalization: minmax
+  output_dtype: float32
+  zero_range_policy: error
+  attention:
+    layer: -1
+    head_aggregation: mean
+    answer_token_aggregation: mean
+    image_tokens_only: true
+  grad_cam:
+    vision_layer: -1
+    gradient_pooling: spatial_mean
+    activation_combination: weighted_sum
+    relu: true
 
 execution:
   stage: smoke
@@ -34,4 +77,3 @@ monitoring:
 storage:
   local_run_root: runs
   gcs_uri: null
-

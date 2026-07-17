@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
-from importlib.metadata import PackageNotFoundError, version
 import json
 import os
-from pathlib import Path
 import platform
 import shutil
 import subprocess
 import sys
-from typing import Any, Sequence
+from collections.abc import Sequence
+from datetime import datetime, timezone
+from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
+from typing import Any
 
 from .audit import SplitLeakageError, audit_jsonl_splits
 from .config import ConfigError, config_sha256, load_config, validate_config
@@ -47,6 +48,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--resolved",
         action="store_true",
         help="also reject unresolved confirmatory placeholders",
+    )
+    config_parser.add_argument(
+        "--model-execution",
+        action="store_true",
+        help="require the complete shared-backend execution contract",
     )
     config_parser.set_defaults(handler=_config_check)
 
@@ -106,12 +112,14 @@ def _config_check(args: argparse.Namespace) -> int:
     config = validate_config(
         load_config(args.config),
         require_resolved=args.resolved,
+        require_model_execution=args.model_execution,
     )
     output = {
         "config": str(args.config),
         "profile": config["profile"],
         "sha256": config_sha256(config),
-        "resolved_check": bool(args.resolved),
+        "resolved_check": bool(args.resolved or args.model_execution),
+        "model_execution_check": bool(args.model_execution),
     }
     print(json.dumps(output, indent=2))
     return 0
@@ -133,14 +141,12 @@ def _audit(args: argparse.Namespace) -> int:
 def _manifest(args: argparse.Namespace) -> int:
     config = validate_config(load_config(args.config))
     git = _git_state(Path.cwd())
-    require_clean = bool(
-        args.require_clean_git or config["execution"].get("require_clean_git")
-    )
+    require_clean = bool(args.require_clean_git or config["execution"].get("require_clean_git"))
     if require_clean and git["dirty"]:
         raise ConfigError("this run requires a clean Git working tree")
 
     stage = args.stage or str(config["execution"].get("stage") or config["profile"])
-    created = datetime.now(timezone.utc)
+    created = datetime.now(timezone.utc)  # noqa: UP017
     run_id = args.run_id or _default_run_id(
         stage=stage,
         config_digest=config_sha256(config),

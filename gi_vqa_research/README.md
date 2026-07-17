@@ -135,6 +135,18 @@ The first migration slice is executable:
 - confirmatory configuration safety checks;
 - tamper-detecting run manifests with Git and environment provenance;
 - restart-safe validation and no-overwrite merging of JSONL shards;
+- an immutable PaliGemma model specification and dependency-light backend contract;
+- a lazy Transformers/PEFT PaliGemma backend for deterministic generation,
+  fixed-answer scoring, decoder answer-to-image attention and answer-conditioned
+  vision-layer Grad-CAM;
+- exact generated-token reproduction and generation/teacher-forcing score
+  parity checks before attribution;
+- min-max float32 attribution output plus source-image and processed-tensor
+  fingerprints;
+- a one-item, package-level Colab T4 contract runner with a thin launch
+  notebook, fixed diagnostic fixture, ms-swift template equivalence checks and
+  downloadable evidence bundle;
+- strict shared-backend smoke configuration validation;
 - dry-run-first GCP bootstrap, detached-job and GCS-sync helpers;
 - standard-library unit tests.
 
@@ -147,7 +159,7 @@ Useful local checks from this directory:
 ```bash
 make test
 PYTHONPATH=src python3 -m gi_vqa.cli \
-  config-check --config configs/study1/smoke.yaml
+  config-check --config configs/study1/smoke.yaml --model-execution
 ```
 
 Audit prepared splits:
@@ -164,8 +176,14 @@ notebook to the new modules.
 
 ## Deliberately not implemented yet
 
-This scaffold does not pretend that the experiment is runnable end to end.
-Training, inference, calibration, attribution and perturbation generation still
-need to be extracted from the existing notebook. In particular, the
-teacher-forced answer scorer and answer-conditioned attribution backend must be
-implemented and validated before allocating a full GPU run.
+This scaffold does not yet run the experiment end to end. The shared PaliGemma
+backend is implemented, but its numerical behaviour has not yet been validated
+with the pinned 3B checkpoint on CUDA. Training orchestration, per-item
+restart-safe stage storage, data selection, perturbation generation, metrics
+and reporting still need to be extracted. The next gate is to execute
+[`notebooks/00_colab_t4_backend_contract.ipynb`](notebooks/00_colab_t4_backend_contract.ipynb)
+on a Colab T4 and retain its evidence bundle. The grouped split manifest and
+exact 20-item smoke selection must then be created from the audited dataset
+before the restart-safe end-to-end smoke runner can execute. The current
+base-model contract validates plumbing; an immutable Study adapter smoke
+follows after training.

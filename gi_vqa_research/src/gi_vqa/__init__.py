@@ -8,6 +8,19 @@ from .audit import (
     audit_jsonl_splits,
     audit_records,
 )
+from .backends import (
+    AttributionError,
+    AttributionResult,
+    BackendCompatibilityError,
+    BackendDependencyError,
+    BackendProvenance,
+    GenerationResult,
+    PaliGemmaBackend,
+    PreparedInput,
+    ScoreVerification,
+    TargetScore,
+    VisionLanguageBackend,
+)
 from .config import ConfigError, config_sha256, load_config, validate_config
 from .identifiers import (
     RecordFormatError,
@@ -17,6 +30,11 @@ from .identifiers import (
     stable_item_id,
 )
 from .jsonl import JsonlDecodeError, iter_jsonl, read_jsonl, write_jsonl_atomic
+from .model_spec import (
+    PALIGEMMA_BACKEND,
+    PALIGEMMA_MODEL_SPEC_SCHEMA,
+    PaliGemmaModelSpec,
+)
 from .provenance import (
     MANIFEST_SCHEMA_VERSION,
     build_run_manifest,
@@ -39,14 +57,28 @@ from .shards import (
 )
 
 __all__ = [
+    "AttributionError",
+    "AttributionResult",
+    "BackendCompatibilityError",
+    "BackendDependencyError",
+    "BackendProvenance",
+    "GenerationResult",
     "JsonlDecodeError",
     "MANIFEST_SCHEMA_VERSION",
+    "PALIGEMMA_BACKEND",
+    "PALIGEMMA_MODEL_SPEC_SCHEMA",
+    "PaliGemmaBackend",
+    "PaliGemmaModelSpec",
+    "PreparedInput",
+    "ScoreVerification",
     "RecordFormatError",
     "RecordIdError",
     "ConfigError",
     "SplitAudit",
     "SplitAuditReport",
     "SplitLeakageError",
+    "TargetScore",
+    "VisionLanguageBackend",
     "ShardMergeReport",
     "ShardValidation",
     "ShardValidationError",

@@ -2,12 +2,13 @@ PYTHON ?= python3
 CONFIG ?= configs/study1/smoke.yaml
 RUN_DIR ?= runs/local-smoke
 
-.PHONY: help install install-gpu test audit manifest merge-shards docker-build docker-shell
+.PHONY: help install install-gpu test check-model-config audit manifest merge-shards docker-build docker-shell
 
 help:
 	@echo "install       Install the local package"
-	@echo "install-gpu   Install package with the validated GPU reference stack"
+	@echo "install-gpu   Install the provisional GPU dependency reference stack"
 	@echo "test          Run the standard-library unit-test suite"
+	@echo "check-model-config  Validate the complete shared-backend configuration"
 	@echo "audit         Audit JSONL splits (set SPLITS='train.jsonl dev.jsonl test.jsonl')"
 	@echo "manifest      Capture a run manifest in RUN_DIR"
 	@echo "merge-shards  Merge result shards (set SHARDS, OUTPUT and ID_FIELD)"
@@ -22,6 +23,10 @@ install-gpu:
 
 test:
 	PYTHONPATH=src $(PYTHON) -m unittest discover -s tests -v
+
+check-model-config:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.cli config-check \
+		--config $(CONFIG) --model-execution
 
 audit:
 	PYTHONPATH=src $(PYTHON) scripts/audit_splits.py $(SPLITS)
