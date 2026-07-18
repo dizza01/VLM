@@ -36,9 +36,13 @@ from .config import config_sha256, load_config, validate_config
 from .identifiers import stable_item_id
 from .model_spec import PaliGemmaModelSpec
 from .provenance import file_sha256
+from .training import (
+    STUDY1_SWIFT_TEMPLATE_TYPE,
+    TrainingCompatibilityError,
+    correct_ms_swift_paligemma_training_encoding,
+)
 
-
-CONTRACT_SCHEMA_VERSION = "gi-vqa-colab-t4-backend-contract-v1"
+CONTRACT_SCHEMA_VERSION = "gi-vqa-colab-t4-backend-contract-v2"
 EXPECTED_PYTHON = (3, 11)
 EXPECTED_TORCH_PREFIX = "2.6.0"
 EXPECTED_CUDA_PREFIX = "12.4"
@@ -522,7 +526,7 @@ def _validate_swift_template(
     target_score: TargetScore,
     image_path: Path,
 ) -> None:
-    """Require ms-swift 3.7 preprocessing to equal the direct processor."""
+    """Require project training preprocessing to equal the direct processor."""
 
     try:
         from PIL import Image
@@ -535,6 +539,15 @@ def _validate_swift_template(
     except ImportError as exc:
         raise ContractFailure(
             "ms-swift and Pillow are required for template equivalence"
+        ) from exc
+    try:
+        from .swift_paligemma_plugin import (
+            get_study1_paligemma_template,
+        )
+    except (ImportError, TrainingCompatibilityError) as exc:
+        raise ContractFailure(
+            "the versioned Study 1 ms-swift PaliGemma template could not be "
+            f"loaded: {exc}"
         ) from exc
 
     model, processor = get_model_tokenizer(
@@ -552,11 +565,15 @@ def _validate_swift_template(
         model is None,
         detail={"model_is_none": model is None},
     )
-    template = get_template(
+    builtin_template = get_template(
         TemplateType.paligemma,
         processor,
         max_length=512,
         template_backend="swift",
+    )
+    template = get_study1_paligemma_template(
+        processor,
+        max_length=512,
     )
     with Image.open(image_path) as source:
         rgb_image = source.convert("RGB")
@@ -652,6 +669,22 @@ def _validate_swift_template(
         suffix=target_score.target_text,
         return_tensors="pt",
     )
+    builtin_template.set_mode("train")
+    builtin_swift_target = builtin_template.encode(
+        InferRequest(
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"<image>{prepared.question}",
+                },
+                {
+                    "role": "assistant",
+                    "content": target_score.target_text,
+                },
+            ],
+            images=[str(image_path)],
+        )
+    )
     template.set_mode("train")
     swift_target = template.encode(
         InferRequest(
@@ -668,6 +701,97 @@ def _validate_swift_template(
             images=[str(image_path)],
         )
     )
+
+    for field in ("input_ids", "labels"):
+        direct_values = tuple(
+            int(value) for value in direct_target[field][0].tolist()
+        )
+        builtin_values = tuple(
+            int(value) for value in builtin_swift_target[field]
+        )
+        _require(
+            report,
+            f"swift_builtin_training_{field}_match_direct_processor",
+            builtin_values == direct_values,
+            detail={
+                "direct_sha256": _integer_sequence_sha256(direct_values),
+                "swift_builtin_sha256": _integer_sequence_sha256(
+                    builtin_values
+                ),
+                "length": len(direct_values),
+            },
+        )
+
+    try:
+        corrected_builtin_target, correction = (
+            correct_ms_swift_paligemma_training_encoding(
+                builtin_swift_target,
+                package_version=EXPECTED_PACKAGE_VERSIONS["ms-swift"],
+            )
+        )
+    except TrainingCompatibilityError as exc:
+        raise ContractFailure(
+            "the built-in ms-swift PaliGemma token-type difference is not the "
+            f"version-pinned compatibility pattern: {exc}"
+        ) from exc
+
+    raw_token_types = tuple(
+        int(value) for value in builtin_swift_target["token_type_ids"]
+    )
+    corrected_builtin_token_types = tuple(
+        int(value)
+        for value in corrected_builtin_target["token_type_ids"]
+    )
+    direct_token_types = tuple(
+        int(value) for value in direct_target["token_type_ids"][0].tolist()
+    )
+    mismatch_details: list[dict[str, Any]] = []
+    for index in correction.mismatch_indices:
+        input_id = int(builtin_swift_target["input_ids"][index])
+        mismatch_details.append(
+            {
+                "index": index,
+                "input_id": input_id,
+                "decoded_token": processor.tokenizer.decode(
+                    [input_id],
+                    skip_special_tokens=False,
+                    clean_up_tokenization_spaces=False,
+                ),
+                "label": int(builtin_swift_target["labels"][index]),
+                "direct_token_type": direct_token_types[index],
+                "swift_builtin_token_type": raw_token_types[index],
+                "corrected_token_type": corrected_builtin_token_types[index],
+            }
+        )
+    correction_detail = correction.as_dict()
+    correction_detail.update(
+        {
+            "direct_sha256": _integer_sequence_sha256(
+                direct_token_types
+            ),
+            "swift_builtin_sha256": _integer_sequence_sha256(
+                raw_token_types
+            ),
+            "corrected_sha256": _integer_sequence_sha256(
+                corrected_builtin_token_types
+            ),
+            "swift_builtin_prefix_zero_count": raw_token_types.count(0),
+            "direct_prefix_zero_count": direct_token_types.count(0),
+            "mismatches": mismatch_details,
+        }
+    )
+    _require(
+        report,
+        "swift_builtin_token_type_difference_is_known_and_isolated",
+        correction.action
+        in {
+            "already_canonical",
+            "corrected_known_boundary_off_by_one",
+        }
+        and corrected_builtin_token_types == direct_token_types,
+        detail=correction_detail,
+    )
+
     exact_sequence_fields: dict[str, dict[str, Any]] = {}
     for field in ("input_ids", "labels", "token_type_ids"):
         direct_values = tuple(
@@ -681,7 +805,7 @@ def _validate_swift_template(
         }
         _require(
             report,
-            f"swift_training_{field}_match_direct_processor",
+            f"study1_swift_training_{field}_match_direct_processor",
             swift_values == direct_values,
             detail=exact_sequence_fields[field],
         )
@@ -691,7 +815,7 @@ def _validate_swift_template(
     pixel_equal = bool(torch.equal(swift_pixels.cpu(), direct_pixels.cpu()))
     _require(
         report,
-        "swift_training_pixels_match_direct_processor",
+        "study1_swift_training_pixels_match_direct_processor",
         pixel_equal,
         detail={
             "shape": [int(value) for value in swift_pixels.shape],
@@ -705,7 +829,7 @@ def _validate_swift_template(
     eos_id = processor.tokenizer.eos_token_id
     _require(
         report,
-        "swift_training_labels_include_terminal_eos",
+        "study1_swift_training_labels_include_terminal_eos",
         bool(scored_label_ids)
         and eos_id is not None
         and scored_label_ids[-1] == int(eos_id),
@@ -719,7 +843,7 @@ def _validate_swift_template(
     scored_label_ids = scored_label_ids[:-1]
     _require(
         report,
-        "swift_training_target_matches_saved_generation",
+        "study1_swift_training_target_matches_saved_generation",
         tuple(scored_label_ids) == target_score.token_ids,
         detail={
             "swift_sha256": _integer_sequence_sha256(scored_label_ids),
@@ -731,11 +855,13 @@ def _validate_swift_template(
     )
     report["swift_template_equivalence"] = {
         "package_version": EXPECTED_PACKAGE_VERSIONS["ms-swift"],
-        "template_type": str(TemplateType.paligemma),
+        "builtin_template_type": str(TemplateType.paligemma),
+        "study1_template_type": STUDY1_SWIFT_TEMPLATE_TYPE,
         "template_backend": "swift",
         "processor_id": spec.resolved_processor_id,
         "processor_revision": spec.resolved_processor_revision,
         "max_length": 512,
+        "builtin_token_type_correction": correction_detail,
         "training_sequence_fields": exact_sequence_fields,
         "pixel_shape": [int(value) for value in swift_pixels.shape],
         "pixel_dtype": str(swift_pixels.dtype),

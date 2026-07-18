@@ -1,7 +1,9 @@
 # Provisional Study 1 PaliGemma backend contract
 
-Status: implementation and executable contract notebook ready; Colab T4
-execution still pending. This is not yet a locked confirmatory protocol.
+Status: contract v1 exposed an ms-swift 3.7.0 PaliGemma token-type boundary
+defect; the versioned project template and contract v2 correction are
+implemented, with the revised Colab T4 execution pending. This is not yet a
+locked confirmatory protocol.
 
 ## Model identity
 
@@ -19,10 +21,20 @@ execution still pending. This is not yet a locked confirmatory protocol.
 
 The source record uses `<image>{question}`. The pinned PaliGemma processor must
 expand that placeholder into the model's image-token prefix, insert BOS, and
-append the prompt newline. The Colab contract must show exact input-ID,
-training-label and token-type equivalence with the ms-swift 3.7 `paligemma`
-template, plus equality of its processed FP16 image tensor. The equivalence
-check loads only a second processor, not a second model.
+append the prompt newline.
+
+The built-in ms-swift 3.7.0 `paligemma` template has a one-token off-by-one:
+it assigns suffix type 1 to the final ignored prompt token. PaliGemma uses
+these types to construct its prefix-LM attention mask, so raw `swift sft` is
+not an approved Study 1 training path. The versioned
+`gi_vqa_paligemma_v1` project template corrects only that exact known boundary
+pattern and rejects any wider difference.
+
+The Colab contract must first show that the built-in difference is isolated to
+the known boundary token. It must then show exact input-ID, training-label,
+token-type and processed FP16 image-tensor equality between the direct
+processor and the project template used by `python -m gi_vqa.training`. The
+equivalence check loads only a second processor, not a second model.
 
 Greedy generation uses no sampling, one beam and at most 64 new tokens. The
 saved answer identity is its generated token-ID sequence after removing terminal
@@ -92,7 +104,9 @@ must be reserved when the grouped split manifest is built.
 The backend must fail rather than silently continue when:
 
 - the exact repository, dependency, data or model identities do not resolve;
-- direct Transformers and ms-swift template encodings differ;
+- the built-in ms-swift difference is not the single version-pinned boundary
+  pattern;
+- the direct Transformers and project-owned Swift template encodings differ;
 - processor/model geometry does not produce 256 image tokens;
 - a saved answer cannot be reproduced as the same token IDs;
 - generation-time and teacher-forced token scores exceed the configured

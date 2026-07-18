@@ -10,7 +10,7 @@ small, testable stages. This prevents a large rewrite from changing the scientif
 | Split audit and leakage hard gates | `gi_vqa.audit` | Implemented and tested |
 | Protocol lock | `protocols/study1/` | Tracked destination created |
 | Shared PaliGemma model contract | `gi_vqa.model_spec`, `gi_vqa.backends`, `gi_vqa.contract` | Implemented; Colab T4 execution pending |
-| Training | `gi_vqa.train` | Planned extraction |
+| Training | `gi_vqa.training` | Corrected Swift template and guarded entrypoint implemented; complete orchestration planned |
 | Deterministic inference and controls | `gi_vqa.infer` | Backend implemented; resumable stage pending |
 | Answer metrics and stratification | `gi_vqa.metrics` | Planned extraction |
 | Calibration | `gi_vqa.calibration` | Planned extraction |
@@ -39,7 +39,9 @@ exact commit and executes the package-level contract, which will:
 
 1. verify the exact reference software/GPU environment and immutable inputs;
 2. load the pinned processor and base checkpoint;
-3. assert direct Transformers and ms-swift 3.7 template equivalence;
+3. isolate the known built-in ms-swift 3.7.0 PaliGemma boundary defect and
+   assert exact direct-processor equivalence for the project-owned training
+   template;
 4. assert 256 image tokens and the 16 by 16 patch grid;
 5. generate the same answer twice;
 6. reproduce its saved token IDs through suffix tokenisation;
@@ -49,6 +51,16 @@ exact commit and executes the package-level contract, which will:
 
 This is a compatibility test, not a research result. Once it passes, implement
 the per-item restart-safe stages needed for the complete development smoke run.
+
+All extracted PaliGemma training must run through:
+
+```bash
+python -m gi_vqa.training ...
+```
+
+This wrapper forces `gi_vqa_paligemma_v1` through ms-swift's external-plugin
+mechanism. Do not substitute raw `swift sft`, whose pinned built-in PaliGemma
+template produces the token-type boundary defect detected by contract v1.
 
 The next useful milestone is a complete 20-item development run:
 

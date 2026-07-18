@@ -42,6 +42,7 @@ dev = [
 
 [project.scripts]
 gi-vqa = "gi_vqa.cli:main"
+gi-vqa-train = "gi_vqa.training:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

@@ -144,8 +144,11 @@ The first migration slice is executable:
 - min-max float32 attribution output plus source-image and processed-tensor
   fingerprints;
 - a one-item, package-level Colab T4 contract runner with a thin launch
-  notebook, fixed diagnostic fixture, ms-swift template equivalence checks and
-  downloadable evidence bundle;
+  notebook, fixed diagnostic fixture, an isolated ms-swift 3.7.0 boundary-bug
+  check, project training-template equivalence checks and downloadable
+  evidence bundle;
+- a guarded `gi-vqa-train`/`python -m gi_vqa.training` entrypoint that forces
+  the versioned corrected PaliGemma template instead of raw `swift sft`;
 - strict shared-backend smoke configuration validation;
 - dry-run-first GCP bootstrap, detached-job and GCS-sync helpers;
 - standard-library unit tests.
@@ -177,8 +180,9 @@ notebook to the new modules.
 ## Deliberately not implemented yet
 
 This scaffold does not yet run the experiment end to end. The shared PaliGemma
-backend is implemented, but its numerical behaviour has not yet been validated
-with the pinned 3B checkpoint on CUDA. Training orchestration, per-item
+backend and corrected training-template boundary are implemented, but their
+numerical behaviour has not yet passed the revised contract with the pinned 3B
+checkpoint on CUDA. Complete training orchestration, per-item
 restart-safe stage storage, data selection, perturbation generation, metrics
 and reporting still need to be extracted. The next gate is to execute
 [`notebooks/00_colab_t4_backend_contract.ipynb`](notebooks/00_colab_t4_backend_contract.ipynb)
