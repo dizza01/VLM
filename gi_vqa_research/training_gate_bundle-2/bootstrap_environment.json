@@ -1,0 +1,15 @@
+{
+  "checkout_clean": true,
+  "global_pip_check_exit_code": 1,
+  "gpu_query": [
+    "Tesla T4, 580.82.07, 15360"
+  ],
+  "implementation": "CPython",
+  "installed_training_gate_path": "/usr/local/lib/python3.11/dist-packages/gi_vqa/training_gate.py",
+  "installed_training_gate_sha256": "ddc5ba16396a77fecdb297394bf3008c04eff0d6a68c028ec27f23b3dd8dd2ab",
+  "python": "3.11.13 (main, Jun  4 2025, 08:57:29) [GCC 11.4.0]",
+  "repository_commit": "96b57cc1bb8937cd864ad3bbc41b4add974fb762",
+  "repository_url": "https://github.com/dizza01/VLM.git",
+  "scoped_pip_conflicts": [],
+  "status": "PASS"
+}

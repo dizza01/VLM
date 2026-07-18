@@ -1,0 +1,12 @@
+{
+  "members_sha256": {
+    "bootstrap_environment.json": "4d61b2363a09160c933e162dd92e876fbe3dfdd2d3380854dbbb5f8302797b68",
+    "phase_1_training.log": "8f4b58e5c164e4019f7ee434c81f8302a172e64c2f6dcad0263918f1f16e913a",
+    "pip_check.txt": "d7405d327a309dcb27b552a8ca1c3c9477cfdeb53febd6c4cb9f284409aeb65f",
+    "pip_freeze.txt": "62193a3bb3ec8a13ea4d9f6d5505fd9622cfe5746066a5a0e8e1d7cbfc30a956",
+    "training_gate_report.json": "d7d350525382d58059718a7db3f8d4257eae9ac411fdca941ee1b22ee95fcefe",
+    "training_gate_train.jsonl": "197912b45bea32d49df0a7bb2fd57b39d11ca1da27d7c57f0f56de052b3a5789"
+  },
+  "repository_commit": "96b57cc1bb8937cd864ad3bbc41b4add974fb762",
+  "training_gate_status": "FAIL"
+}

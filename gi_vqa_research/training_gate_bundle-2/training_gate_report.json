@@ -1,0 +1,346 @@
+{
+  "artifact_paths": {
+    "report": "/content/gi_vqa_training_gate_artifacts/training_gate_report.json",
+    "training_subset": "/content/gi_vqa_training_gate_artifacts/training_gate_train.jsonl"
+  },
+  "checks": {
+    "cuda_available": {
+      "detail": {
+        "cuda_available": true
+      },
+      "passed": true
+    },
+    "exactly_one_required_gpu": {
+      "detail": {
+        "gpu_names": [
+          "Tesla T4"
+        ],
+        "required_substring": "T4"
+      },
+      "passed": true
+    },
+    "grouped_split_materialized_and_verified": {
+      "detail": {
+        "artifact_count": 9,
+        "manifest": "/content/vlm-training-gate/gi_vqa_research/protocols/study1/grouped_split_manifest.json",
+        "manifest_sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885",
+        "materialized": true,
+        "primary_audit": {
+          "is_source_disjoint": true,
+          "overlaps": {},
+          "splits": {
+            "development": {
+              "duplicate_item_rows": 0,
+              "max_questions_per_source_image": 51,
+              "rows": 16477,
+              "unique_item_ids": 16477,
+              "unique_source_images": 645
+            },
+            "test": {
+              "duplicate_item_rows": 0,
+              "max_questions_per_source_image": 51,
+              "rows": 16297,
+              "unique_item_ids": 16297,
+              "unique_source_images": 645
+            },
+            "train": {
+              "duplicate_item_rows": 0,
+              "max_questions_per_source_image": 51,
+              "rows": 126064,
+              "unique_item_ids": 126064,
+              "unique_source_images": 5158
+            }
+          }
+        },
+        "reserved_source_ids": [
+          "cl8k2u1pv1e4z08320vbv6jzb"
+        ],
+        "reused_artifacts": 0,
+        "smoke_items": 20,
+        "status": "PASS"
+      },
+      "passed": true
+    },
+    "locked_image_cache_materialized_and_verified": {
+      "detail": {
+        "development_smoke_images": 20,
+        "encoded_bytes": 2769492,
+        "image_count": 40,
+        "manifest": "/content/vlm-training-gate/gi_vqa_research/protocols/study1/smoke_training_image_cache_manifest.json",
+        "manifest_sha256": "d07f870362cd977465dc6afeae1d3a427c9a595af8bbdf1e721ea1d7142f6a7c",
+        "materialized_images": 40,
+        "reused_images": 0,
+        "split_manifest_sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885",
+        "status": "PASS",
+        "training_loader_smoke_images": 20
+      },
+      "passed": true
+    },
+    "phase_1_process_succeeded": {
+      "detail": {
+        "elapsed_seconds": 216.75732314699997,
+        "log_path": "/content/gi_vqa_training_gate_artifacts/phase_1_training.log",
+        "log_sha256": "8f4b58e5c164e4019f7ee434c81f8302a172e64c2f6dcad0263918f1f16e913a",
+        "returncode": 0
+      },
+      "passed": true
+    },
+    "pinned_torch_runtime": {
+      "detail": {
+        "torch": "2.6.0+cu124",
+        "torch_cuda": "12.4"
+      },
+      "passed": true
+    },
+    "pinned_training_packages": {
+      "detail": {
+        "mismatches": {},
+        "observed": {
+          "Pillow": "11.3.0",
+          "PyYAML": "6.0.2",
+          "accelerate": "1.9.0",
+          "bitsandbytes": "0.47.0",
+          "datasets": "3.3.2",
+          "huggingface-hub": "0.34.3",
+          "ms-swift": "3.7.0",
+          "numpy": "2.0.2",
+          "peft": "0.16.0",
+          "sentencepiece": "0.2.0",
+          "transformers": "4.55.0",
+          "wandb": "0.21.0"
+        }
+      },
+      "passed": true
+    },
+    "python_3_11": {
+      "detail": {
+        "python": "3.11.13 (main, Jun  4 2025, 08:57:29) [GCC 11.4.0]"
+      },
+      "passed": true
+    },
+    "repository_checkout_is_clean": {
+      "detail": {
+        "status": []
+      },
+      "passed": true
+    },
+    "repository_commit_matches": {
+      "detail": {
+        "expected": "96b57cc1bb8937cd864ad3bbc41b4add974fb762",
+        "observed": "96b57cc1bb8937cd864ad3bbc41b4add974fb762"
+      },
+      "passed": true
+    },
+    "training_subset_has_20_unique_training_sources": {
+      "detail": {
+        "algorithm": "sha256-one-item-per-training-source-v1",
+        "item_ids": [
+          "25370454703301fd407d",
+          "6c0e5506c4849fc995c4",
+          "02beb3dee7babdbba15f",
+          "39b4ef2dd77a8b76352d",
+          "a87e9c55dbdd14c1b8d6",
+          "b30b807ab2e546116214",
+          "45b7283c125304af4954",
+          "9cb80dc66bbcb3ec49b7",
+          "5264e9d53e2ac523711f",
+          "03a1bf335958616c3683",
+          "5160716995131d0b5bea",
+          "16e55cf941f152ec6ecd",
+          "e2d0d520d7f7c908b8be",
+          "fb97b7238bfd4c9ebea3",
+          "1bbf4f3a66ca4ecdff9b",
+          "597750826d8192b8fab3",
+          "42b230d51aa440e66bca",
+          "3cb0f663a13bdea56d63",
+          "3ca13b021df13d1c7514",
+          "ecc8e824783e5d6f4df7"
+        ],
+        "jsonl_path": "/content/gi_vqa_training_gate_artifacts/training_gate_train.jsonl",
+        "jsonl_sha256": "197912b45bea32d49df0a7bb2fd57b39d11ca1da27d7c57f0f56de052b3a5789",
+        "records": 20,
+        "seed": 42,
+        "source_img_ids": [
+          "clb0lbwzqdphg086u4lxie3xb",
+          "clb0kvxv18zyk074y1xa29o15",
+          "clbnxtoewbl2y074c476a8d5t",
+          "clb0kvxvn90zo074yawkj5e2l",
+          "clb0kvxvp912c074yayjq5b8a",
+          "cla820gmfs5on071u38ap5a7s",
+          "clbnxtoxf6vma079o4xz0hq6n",
+          "clbnxtox46vb6079odndkdwx0",
+          "cla820gles4az071u42vp9mmx",
+          "cla820glys53r071ub64d5s10",
+          "clb0lbwymdoaw086u0fr70z13",
+          "cl8k2u1rg1g4r0832c07xflsw",
+          "clb0lbwztdpl4086ugnnfcwq7",
+          "cla820gm6s5cf071u06wmfvg9",
+          "clb0kvxw191i4074ydbkffqcc",
+          "cl8k2u1qx1fef0832b8vzh7wv",
+          "clb0lbwzfdp3w086u6u5kaz56",
+          "cl8k2u1st1gyv08322bojh2xe",
+          "clbnxtowg6u06079o8mi29jol",
+          "clbnxtoxl6w0u079o2l654j9z"
+        ],
+        "unique_source_images": 20
+      },
+      "passed": true
+    }
+  },
+  "configuration": {
+    "path": "/content/vlm-training-gate/gi_vqa_research/configs/study1/smoke.yaml",
+    "project_root": "/content/vlm-training-gate/gi_vqa_research",
+    "seed": 42,
+    "sha256": "79e34a0b76db824235493421b34b054db519eb5113850e92bb08bc2cdce33796"
+  },
+  "diagnostic_only": true,
+  "error": {
+    "message": "checkpoint 1 records no LoRA target modules",
+    "traceback": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/dist-packages/gi_vqa/training_gate.py\", line 567, in run_training_gate\n    phase_one = inspect_training_checkpoint(\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/dist-packages/gi_vqa/training_gate.py\", line 344, in inspect_training_checkpoint\n    raise TrainingGateFailure(\nTrainingGateFailure: checkpoint 1 records no LoRA target modules\n",
+    "type": "__main__.TrainingGateFailure"
+  },
+  "excluded_from_research_results": true,
+  "finished_at_utc": "2026-07-18T21:56:43.864046+00:00",
+  "inputs": {
+    "image_cache_manifest": {
+      "path": "/content/vlm-training-gate/gi_vqa_research/protocols/study1/smoke_training_image_cache_manifest.json",
+      "sha256": "d07f870362cd977465dc6afeae1d3a427c9a595af8bbdf1e721ea1d7142f6a7c"
+    },
+    "image_cache_verification": {
+      "development_smoke_images": 20,
+      "encoded_bytes": 2769492,
+      "image_count": 40,
+      "manifest": "/content/vlm-training-gate/gi_vqa_research/protocols/study1/smoke_training_image_cache_manifest.json",
+      "manifest_sha256": "d07f870362cd977465dc6afeae1d3a427c9a595af8bbdf1e721ea1d7142f6a7c",
+      "split_manifest_sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885",
+      "status": "PASS",
+      "training_loader_smoke_images": 20
+    },
+    "split_manifest": {
+      "path": "/content/vlm-training-gate/gi_vqa_research/protocols/study1/grouped_split_manifest.json",
+      "sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885"
+    },
+    "split_verification": {
+      "artifact_count": 9,
+      "manifest": "/content/vlm-training-gate/gi_vqa_research/protocols/study1/grouped_split_manifest.json",
+      "manifest_sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885",
+      "primary_audit": {
+        "is_source_disjoint": true,
+        "overlaps": {},
+        "splits": {
+          "development": {
+            "duplicate_item_rows": 0,
+            "max_questions_per_source_image": 51,
+            "rows": 16477,
+            "unique_item_ids": 16477,
+            "unique_source_images": 645
+          },
+          "test": {
+            "duplicate_item_rows": 0,
+            "max_questions_per_source_image": 51,
+            "rows": 16297,
+            "unique_item_ids": 16297,
+            "unique_source_images": 645
+          },
+          "train": {
+            "duplicate_item_rows": 0,
+            "max_questions_per_source_image": 51,
+            "rows": 126064,
+            "unique_item_ids": 126064,
+            "unique_source_images": 5158
+          }
+        }
+      },
+      "reserved_source_ids": [
+        "cl8k2u1pv1e4z08320vbv6jzb"
+      ],
+      "smoke_items": 20,
+      "status": "PASS"
+    }
+  },
+  "repository": {
+    "clean": true,
+    "expected_commit": "96b57cc1bb8937cd864ad3bbc41b4add974fb762",
+    "resolved_commit": "96b57cc1bb8937cd864ad3bbc41b4add974fb762",
+    "root": "/content/vlm-training-gate"
+  },
+  "runtime": {
+    "gpu_names": [
+      "Tesla T4"
+    ],
+    "packages": {
+      "Pillow": "11.3.0",
+      "PyYAML": "6.0.2",
+      "accelerate": "1.9.0",
+      "bitsandbytes": "0.47.0",
+      "datasets": "3.3.2",
+      "huggingface-hub": "0.34.3",
+      "ms-swift": "3.7.0",
+      "numpy": "2.0.2",
+      "peft": "0.16.0",
+      "sentencepiece": "0.2.0",
+      "transformers": "4.55.0",
+      "wandb": "0.21.0"
+    },
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "python": "3.11.13 (main, Jun  4 2025, 08:57:29) [GCC 11.4.0]",
+    "python_implementation": "CPython",
+    "torch": "2.6.0+cu124",
+    "torch_cuda": "12.4"
+  },
+  "schema_version": "gi-vqa-colab-t4-training-gate-v1",
+  "started_at_utc": "2026-07-18T21:50:16.226279+00:00",
+  "status": "FAIL",
+  "training_subset": {
+    "algorithm": "sha256-one-item-per-training-source-v1",
+    "item_ids": [
+      "25370454703301fd407d",
+      "6c0e5506c4849fc995c4",
+      "02beb3dee7babdbba15f",
+      "39b4ef2dd77a8b76352d",
+      "a87e9c55dbdd14c1b8d6",
+      "b30b807ab2e546116214",
+      "45b7283c125304af4954",
+      "9cb80dc66bbcb3ec49b7",
+      "5264e9d53e2ac523711f",
+      "03a1bf335958616c3683",
+      "5160716995131d0b5bea",
+      "16e55cf941f152ec6ecd",
+      "e2d0d520d7f7c908b8be",
+      "fb97b7238bfd4c9ebea3",
+      "1bbf4f3a66ca4ecdff9b",
+      "597750826d8192b8fab3",
+      "42b230d51aa440e66bca",
+      "3cb0f663a13bdea56d63",
+      "3ca13b021df13d1c7514",
+      "ecc8e824783e5d6f4df7"
+    ],
+    "jsonl_path": "/content/gi_vqa_training_gate_artifacts/training_gate_train.jsonl",
+    "jsonl_sha256": "197912b45bea32d49df0a7bb2fd57b39d11ca1da27d7c57f0f56de052b3a5789",
+    "records": 20,
+    "seed": 42,
+    "source_img_ids": [
+      "clb0lbwzqdphg086u4lxie3xb",
+      "clb0kvxv18zyk074y1xa29o15",
+      "clbnxtoewbl2y074c476a8d5t",
+      "clb0kvxvn90zo074yawkj5e2l",
+      "clb0kvxvp912c074yayjq5b8a",
+      "cla820gmfs5on071u38ap5a7s",
+      "clbnxtoxf6vma079o4xz0hq6n",
+      "clbnxtox46vb6079odndkdwx0",
+      "cla820gles4az071u42vp9mmx",
+      "cla820glys53r071ub64d5s10",
+      "clb0lbwymdoaw086u0fr70z13",
+      "cl8k2u1rg1g4r0832c07xflsw",
+      "clb0lbwztdpl4086ugnnfcwq7",
+      "cla820gm6s5cf071u06wmfvg9",
+      "clb0kvxw191i4074ydbkffqcc",
+      "cl8k2u1qx1fef0832b8vzh7wv",
+      "clb0lbwzfdp3w086u6u5kaz56",
+      "cl8k2u1st1gyv08322bojh2xe",
+      "clbnxtowg6u06079o8mi29jol",
+      "clbnxtoxl6w0u079o2l654j9z"
+    ],
+    "unique_source_images": 20
+  }
+}

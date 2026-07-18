@@ -340,9 +340,20 @@ def inspect_training_checkpoint(
             f"alpha={adapter_config.get('lora_alpha')}"
         )
     target_modules = adapter_config.get("target_modules")
-    if not isinstance(target_modules, list) or not target_modules:
+    has_target_modules = (
+        isinstance(target_modules, str) and bool(target_modules.strip())
+    ) or (
+        isinstance(target_modules, list)
+        and bool(target_modules)
+        and all(
+            isinstance(module, str) and bool(module.strip())
+            for module in target_modules
+        )
+    )
+    if not has_target_modules:
         raise TrainingGateFailure(
-            f"checkpoint {expected_step} records no LoRA target modules"
+            f"checkpoint {expected_step} records invalid or empty LoRA "
+            f"target modules: {target_modules!r}"
         )
     return {
         "path": str(checkpoint_path),

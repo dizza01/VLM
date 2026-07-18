@@ -161,6 +161,7 @@ class TrainingGateTests(unittest.TestCase):
         *,
         step: int,
         adapter_bytes: bytes,
+        target_modules: str | list[str] | None = None,
     ) -> Path:
         checkpoint = root / f"checkpoint-{step}"
         checkpoint.mkdir()
@@ -171,7 +172,11 @@ class TrainingGateTests(unittest.TestCase):
                     "r": 16,
                     "lora_alpha": 32,
                     "lora_dropout": 0.0,
-                    "target_modules": ["q_proj"],
+                    "target_modules": (
+                        ["q_proj"]
+                        if target_modules is None
+                        else target_modules
+                    ),
                     "base_model_name_or_path": "example/model",
                 }
             )
@@ -219,6 +224,46 @@ class TrainingGateTests(unittest.TestCase):
                 "did not change",
             ):
                 verify_checkpoint_resume(first, second)
+
+    def test_checkpoint_accepts_peft_regex_target_modules(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target_modules = (
+                r"^(model.language_model.*\."
+                r"(q_proj|k_proj|v_proj|o_proj))$"
+            )
+            checkpoint = self._checkpoint(
+                root,
+                step=1,
+                adapter_bytes=b"adapter",
+                target_modules=target_modules,
+            )
+
+            result = inspect_training_checkpoint(
+                checkpoint,
+                expected_step=1,
+            )
+
+            self.assertEqual(
+                result["adapter_config"]["target_modules"],
+                target_modules,
+            )
+
+    def test_checkpoint_rejects_empty_target_modules(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            checkpoint = self._checkpoint(
+                root,
+                step=1,
+                adapter_bytes=b"adapter",
+                target_modules=" ",
+            )
+
+            with self.assertRaisesRegex(
+                TrainingGateFailure,
+                "invalid or empty",
+            ):
+                inspect_training_checkpoint(checkpoint, expected_step=1)
 
 
 if __name__ == "__main__":

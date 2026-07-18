@@ -1,0 +1,2 @@
+ipython 7.34.0 requires jedi, which is not installed.
+gcsfs 2025.3.2 has requirement fsspec==2025.3.2, but you have fsspec 2024.12.0.
