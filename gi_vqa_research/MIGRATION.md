@@ -6,11 +6,11 @@ small, testable stages. This prevents a large rewrite from changing the scientif
 | Existing notebook responsibility | New destination | Current state |
 | --- | --- | --- |
 | Environment and study configuration | `configs/study1/`, `gi_vqa.config`, run manifest | Foundation implemented |
-| JSONL creation and image caching | `gi_vqa.splits`, future image cache | Grouped metadata splits implemented; image cache pending |
+| JSONL creation and image caching | `gi_vqa.splits`, `gi_vqa.image_cache` | Grouped metadata complete; locked smoke/training cache implemented |
 | Split audit and leakage hard gates | `gi_vqa.splits`, `gi_vqa.audit` | Built from pinned metadata; independent gate passed |
 | Protocol lock | `protocols/study1/` | Tracked destination created |
 | Shared PaliGemma model contract | `gi_vqa.model_spec`, `gi_vqa.backends`, `gi_vqa.contract` | Implemented; Colab T4 contract v2 passed |
-| Training | `gi_vqa.training` | Corrected Swift template and guarded entrypoint implemented; complete orchestration planned |
+| Training | `gi_vqa.training`, `gi_vqa.training_gate` | Corrected template plus tiny-LoRA save/resume/reload gate implemented; T4 run pending |
 | Deterministic inference and controls | `gi_vqa.infer` | Backend implemented; resumable stage pending |
 | Answer metrics and stratification | `gi_vqa.metrics` | Planned extraction |
 | Calibration | `gi_vqa.calibration` | Planned extraction |
@@ -62,7 +62,9 @@ python -m gi_vqa.cli split-check \
 The tracked manifest records 126,064 training, 16,477 development and 16,297
 test items across mutually disjoint source-image groups. The builder reserved
 the contract fixture and selected the fixed 20-item development smoke set.
-Image caching and the per-item restart-safe stages are now the next gate.
+The locked 20-development/20-training image cache and offline audit passed.
+The two-step tiny-LoRA checkpoint/resume/reload gate is implemented and must
+pass on the reference Colab T4. The per-item restart-safe stages follow.
 
 All extracted PaliGemma training must run through:
 

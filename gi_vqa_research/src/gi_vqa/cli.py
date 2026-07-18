@@ -17,6 +17,11 @@ from typing import Any
 
 from .audit import SplitLeakageError, audit_jsonl_splits
 from .config import ConfigError, config_sha256, load_config, validate_config
+from .image_cache import (
+    materialize_image_cache,
+    prepare_image_cache,
+    verify_image_cache,
+)
 from .jsonl import iter_jsonl
 from .provenance import build_run_manifest, canonical_json_sha256, write_run_manifest
 from .shards import merge_jsonl_shards_atomic
@@ -26,6 +31,7 @@ from .splits import (
     build_grouped_splits,
     load_official_records_from_hugging_face,
     load_official_records_from_jsonl,
+    materialize_grouped_split_artifacts,
     verify_grouped_split_artifacts,
 )
 
@@ -126,6 +132,81 @@ def _build_parser() -> argparse.ArgumentParser:
         default=Path("."),
     )
     split_check_parser.set_defaults(handler=_split_check)
+
+    materialize_splits_parser = subparsers.add_parser(
+        "materialize-splits",
+        help="reconstruct ignored split files from the tracked manifest",
+    )
+    materialize_splits_parser.add_argument(
+        "--manifest",
+        required=True,
+        type=Path,
+    )
+    materialize_splits_parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=Path("."),
+    )
+    materialize_splits_parser.add_argument(
+        "--image-dir",
+        type=Path,
+        default=Path("data/images"),
+    )
+    materialize_splits_parser.set_defaults(handler=_materialize_splits)
+
+    image_cache_parser = subparsers.add_parser(
+        "prepare-image-cache",
+        help="materialise and lock smoke plus training-loader images",
+    )
+    image_cache_parser.add_argument("--config", required=True, type=Path)
+    image_cache_parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=Path("."),
+    )
+    image_cache_parser.add_argument("--split-manifest", type=Path)
+    image_cache_parser.add_argument(
+        "--cache-manifest",
+        type=Path,
+        default=Path(
+            "protocols/study1/smoke_training_image_cache_manifest.json"
+        ),
+    )
+    image_cache_parser.add_argument(
+        "--image-dir",
+        type=Path,
+        default=Path("data/images"),
+    )
+    image_cache_parser.add_argument(
+        "--training-source-images",
+        type=int,
+        default=20,
+    )
+    image_cache_parser.set_defaults(handler=_prepare_image_cache)
+
+    materialize_cache_parser = subparsers.add_parser(
+        "materialize-image-cache",
+        help="restore local images from a locked image cache manifest",
+    )
+    materialize_cache_parser.add_argument("--manifest", required=True, type=Path)
+    materialize_cache_parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=Path("."),
+    )
+    materialize_cache_parser.set_defaults(handler=_materialize_image_cache)
+
+    image_cache_check_parser = subparsers.add_parser(
+        "image-cache-check",
+        help="offline verification of a locked local image cache",
+    )
+    image_cache_check_parser.add_argument("--manifest", required=True, type=Path)
+    image_cache_check_parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=Path("."),
+    )
+    image_cache_check_parser.set_defaults(handler=_image_cache_check)
 
     manifest_parser = subparsers.add_parser(
         "manifest", help="capture an immutable pre-run manifest"
@@ -302,6 +383,65 @@ def _prepare_splits(args: argparse.Namespace) -> int:
 
 def _split_check(args: argparse.Namespace) -> int:
     result = verify_grouped_split_artifacts(
+        manifest_path=args.manifest,
+        project_root=args.project_root,
+    )
+    print(json.dumps(result, indent=2))
+    return 0
+
+
+def _materialize_splits(args: argparse.Namespace) -> int:
+    result = materialize_grouped_split_artifacts(
+        manifest_path=args.manifest,
+        project_root=args.project_root,
+        image_dir=args.image_dir,
+    )
+    print(json.dumps(result, indent=2))
+    return 0
+
+
+def _prepare_image_cache(args: argparse.Namespace) -> int:
+    project_root = args.project_root.resolve()
+    config_path = (
+        args.config.resolve()
+        if args.config.is_absolute()
+        else (project_root / args.config).resolve()
+    )
+    config = validate_config(
+        load_config(config_path),
+        require_resolved=True,
+    )
+    manifest_value = args.split_manifest or config["data"].get(
+        "split_manifest"
+    )
+    if not manifest_value:
+        raise ValueError(
+            "provide --split-manifest or config data.split_manifest"
+        )
+    result = prepare_image_cache(
+        project_root=project_root,
+        split_manifest_path=Path(manifest_value),
+        cache_manifest_path=args.cache_manifest,
+        image_dir=args.image_dir,
+        training_source_images=args.training_source_images,
+        token=os.getenv("HF_TOKEN"),
+    )
+    print(json.dumps(result, indent=2))
+    return 0
+
+
+def _materialize_image_cache(args: argparse.Namespace) -> int:
+    result = materialize_image_cache(
+        manifest_path=args.manifest,
+        project_root=args.project_root,
+        token=os.getenv("HF_TOKEN"),
+    )
+    print(json.dumps(result, indent=2))
+    return 0
+
+
+def _image_cache_check(args: argparse.Namespace) -> int:
+    result = verify_image_cache(
         manifest_path=args.manifest,
         project_root=args.project_root,
     )

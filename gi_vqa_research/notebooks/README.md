@@ -15,6 +15,8 @@ Recommended notebooks:
 
 - `00_colab_t4_backend_contract.ipynb` — executable one-item CUDA compatibility
   gate;
+- `01_colab_t4_training_gate.ipynb` — executable two-step tiny-LoRA checkpoint,
+  resume and adapter-reload gate;
 - `01_data_audit.ipynb`
 - `02_pilot_inspection.ipynb`
 - `03_results_report.ipynb`
@@ -63,3 +65,29 @@ environment. The fixed item is excluded from research results and is reserved
 by the tracked grouped split manifest. The grouped split and artifact-integrity
 audit has now passed; image caching and the restart-safe 20-item development
 runner are the next gate.
+
+## Run the Colab T4 training gate
+
+After committing and pushing the training-gate implementation, open
+`01_colab_t4_training_gate.ipynb` through Colab's GitHub integration. Use the
+same runtime version `2025.07`, T4 GPU and `HF_TOKEN` secret as the backend
+contract. Paste the full 40-character commit containing the notebook, tracked
+split/cache manifests and runner, then run all cells.
+
+The notebook reconstructs the ignored split files and 40-image cache from
+their tracked locks. It invokes:
+
+```bash
+python -m gi_vqa.training_gate
+```
+
+The gate selects one question from each of the 20 locked training sources,
+trains a rank-16 LoRA adapter to checkpoint 1, exits that training process,
+resumes the adapter/optimizer/scheduler/trainer state to checkpoint 2, verifies
+that the adapter changed, and independently reloads it for a finite-loss
+forward pass. It downloads a compact evidence bundle containing reports, logs,
+the exact training subset and hashes—not the disposable adapter weights.
+
+A PASS authorises implementation of the restart-safe 20-item development
+inference/explanation runner. It is not a trained research model and must never
+be reported as an experimental result.

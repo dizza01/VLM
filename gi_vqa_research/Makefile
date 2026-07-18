@@ -1,8 +1,10 @@
 PYTHON ?= python3
 CONFIG ?= configs/study1/smoke.yaml
 RUN_DIR ?= runs/local-smoke
+GATE_WORK_DIR ?= runs/training-gate-work
+GATE_ARTIFACT_DIR ?= runs/training-gate-evidence
 
-.PHONY: help install install-data install-gpu test check-model-config prepare-splits split-check audit manifest merge-shards docker-build docker-shell
+.PHONY: help install install-data install-gpu test check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate audit manifest merge-shards docker-build docker-shell
 
 help:
 	@echo "install       Install the local package"
@@ -11,7 +13,12 @@ help:
 	@echo "test          Run the standard-library unit-test suite"
 	@echo "check-model-config  Validate the complete shared-backend configuration"
 	@echo "prepare-splits  Build source-grouped Study 1 splits and smoke-20 selection"
+	@echo "materialize-splits  Reconstruct ignored split files from their tracked lock"
 	@echo "split-check   Verify split files against the tracked manifest"
+	@echo "prepare-image-cache  Lock and cache 20 development plus 20 training images"
+	@echo "materialize-image-cache  Restore images from the tracked cache manifest"
+	@echo "image-cache-check  Verify every cached image offline"
+	@echo "training-gate  Run the two-step CUDA gate (set EXPECTED_COMMIT)"
 	@echo "audit         Audit JSONL splits (set SPLITS='train.jsonl dev.jsonl test.jsonl')"
 	@echo "manifest      Capture a run manifest in RUN_DIR"
 	@echo "merge-shards  Merge result shards (set SHARDS, OUTPUT and ID_FIELD)"
@@ -38,10 +45,40 @@ prepare-splits:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.cli prepare-splits \
 		--config $(CONFIG) --project-root .
 
+materialize-splits:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.cli materialize-splits \
+		--manifest protocols/study1/grouped_split_manifest.json \
+		--project-root .
+
 split-check:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.cli split-check \
 		--manifest protocols/study1/grouped_split_manifest.json \
 		--project-root .
+
+prepare-image-cache:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.cli prepare-image-cache \
+		--config $(CONFIG) --project-root . --training-source-images 20
+
+materialize-image-cache:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.cli materialize-image-cache \
+		--manifest protocols/study1/smoke_training_image_cache_manifest.json \
+		--project-root .
+
+image-cache-check:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.cli image-cache-check \
+		--manifest protocols/study1/smoke_training_image_cache_manifest.json \
+		--project-root .
+
+training-gate:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.training_gate \
+		--config gi_vqa_research/$(CONFIG) \
+		--repository-root .. \
+		--expected-commit $(EXPECTED_COMMIT) \
+		--split-manifest gi_vqa_research/protocols/study1/grouped_split_manifest.json \
+		--image-cache-manifest gi_vqa_research/protocols/study1/smoke_training_image_cache_manifest.json \
+		--work-dir $(GATE_WORK_DIR) \
+		--artifact-dir $(GATE_ARTIFACT_DIR) \
+		--required-gpu-substring T4
 
 audit:
 	PYTHONPATH=src $(PYTHON) scripts/audit_splits.py $(SPLITS)

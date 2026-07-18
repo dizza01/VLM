@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +13,7 @@ from gi_vqa.splits import (
     SplitBuildError,
     SplitBuildPaths,
     build_grouped_splits,
+    materialize_grouped_split_artifacts,
     select_smoke_records,
     verify_grouped_split_artifacts,
 )
@@ -216,6 +218,44 @@ class GroupedSplitTests(unittest.TestCase):
                 "refusing to overwrite",
             ):
                 self.build(root)
+
+    def test_materialize_reconstructs_and_reuses_tracked_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.build(root)
+            manifest_path = (
+                root / "protocols/study1/grouped_split_manifest.json"
+            )
+            locked_bytes = manifest_path.read_bytes()
+            shutil.rmtree(root / "data/processed/study1")
+            train, test = self.source_records()
+
+            def loader(
+                dataset_id: str,
+                revision: str,
+            ) -> tuple[list[dict], list[dict]]:
+                self.assertEqual(dataset_id, "example/dataset")
+                self.assertEqual(revision, "d" * 40)
+                return train, test
+
+            result = materialize_grouped_split_artifacts(
+                manifest_path=manifest_path,
+                project_root=root,
+                official_loader=loader,
+            )
+            self.assertTrue(result["materialized"])
+            self.assertEqual(result["reused_artifacts"], 0)
+            self.assertEqual(manifest_path.read_bytes(), locked_bytes)
+
+            reused = materialize_grouped_split_artifacts(
+                manifest_path=manifest_path,
+                project_root=root,
+                official_loader=lambda *_args: self.fail(
+                    "reused artifacts must not reload the dataset"
+                ),
+            )
+            self.assertFalse(reused["materialized"])
+            self.assertEqual(reused["reused_artifacts"], 9)
 
     def test_smoke_selection_requires_unique_sources(self) -> None:
         records = [

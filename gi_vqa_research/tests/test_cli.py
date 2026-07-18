@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 from gi_vqa.cli import main
 from gi_vqa.jsonl import read_jsonl, write_jsonl_atomic
@@ -170,6 +171,83 @@ class CliTests(unittest.TestCase):
                 )
             self.assertEqual(check_status, 0)
             self.assertIn('"smoke_items": 2', check_output.getvalue())
+
+    def test_image_cache_commands_delegate_with_project_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = {
+                "schema_version": 1,
+                "study": "study1",
+                "profile": "smoke",
+                "seed": 42,
+                "data": {
+                    "dataset": "example/dataset",
+                    "dataset_revision": "d" * 40,
+                    "image_dataset": "example/images",
+                    "image_dataset_revision": "i" * 40,
+                    "split_manifest": "protocols/split.json",
+                },
+                "model": {"base_model_revision": "m" * 40},
+                "execution": {
+                    "evaluation_partition": "development",
+                    "shard_count": 1,
+                },
+                "monitoring": {},
+                "storage": {},
+            }
+            (root / "config.json").write_text(
+                json.dumps(config),
+                encoding="utf-8",
+            )
+            with patch(
+                "gi_vqa.cli.prepare_image_cache",
+                return_value={"status": "PASS", "image_count": 4},
+            ) as prepare:
+                output = io.StringIO()
+                with redirect_stdout(output):
+                    status = main(
+                        [
+                            "prepare-image-cache",
+                            "--config",
+                            "config.json",
+                            "--project-root",
+                            str(root),
+                            "--training-source-images",
+                            "2",
+                        ]
+                    )
+            self.assertEqual(status, 0)
+            self.assertIn('"image_count": 4', output.getvalue())
+            self.assertEqual(
+                prepare.call_args.kwargs["split_manifest_path"],
+                Path("protocols/split.json"),
+            )
+            self.assertEqual(
+                prepare.call_args.kwargs["training_source_images"],
+                2,
+            )
+
+            with patch(
+                "gi_vqa.cli.verify_image_cache",
+                return_value={"status": "PASS", "image_count": 4},
+            ) as verify:
+                output = io.StringIO()
+                with redirect_stdout(output):
+                    status = main(
+                        [
+                            "image-cache-check",
+                            "--manifest",
+                            "protocols/cache.json",
+                            "--project-root",
+                            str(root),
+                        ]
+                    )
+            self.assertEqual(status, 0)
+            self.assertIn('"status": "PASS"', output.getvalue())
+            self.assertEqual(
+                verify.call_args.kwargs["manifest_path"],
+                Path("protocols/cache.json"),
+            )
 
 
 if __name__ == "__main__":

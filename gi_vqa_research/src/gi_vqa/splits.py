@@ -15,7 +15,7 @@ import os
 import shutil
 import tempfile
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
@@ -344,6 +344,156 @@ def load_official_records_from_jsonl(
     """Load caller-supplied official JSONL metadata."""
 
     return list(iter_jsonl(train_path)), list(iter_jsonl(test_path))
+
+
+def materialize_grouped_split_artifacts(
+    *,
+    manifest_path: str | Path,
+    project_root: str | Path,
+    image_dir: str | Path = "data/images",
+    official_loader: (
+        Callable[
+            [str, str],
+            tuple[list[dict[str, Any]], list[dict[str, Any]]],
+        ]
+        | None
+    ) = None,
+) -> dict[str, Any]:
+    """Reconstruct ignored split files against an existing tracked manifest.
+
+    A clean clone contains the compact protocol manifest but not the generated
+    JSONL files. Reconstruction builds into the manifest's recorded data
+    directory, creates a disposable candidate manifest, and publishes success
+    only when that candidate is byte-identical to the tracked lock.
+    """
+
+    root = Path(project_root).resolve()
+    locked_manifest_path = _resolve_under(root, manifest_path)
+    with locked_manifest_path.open("r", encoding="utf-8") as handle:
+        locked_manifest = json.load(handle)
+    if not isinstance(locked_manifest, dict):
+        raise SplitBuildError("grouped split manifest root must be an object")
+    if locked_manifest.get("schema_version") != GROUPED_SPLIT_SCHEMA_VERSION:
+        raise SplitBuildError("unsupported grouped split manifest schema")
+    if locked_manifest.get("status") != "PASS":
+        raise SplitBuildError("grouped split manifest status is not PASS")
+
+    artifacts = locked_manifest.get("artifacts")
+    if not isinstance(artifacts, Mapping) or not artifacts:
+        raise SplitBuildError("grouped split manifest has no artifacts")
+    artifact_paths = [
+        _resolve_under(root, descriptor["path"])
+        for descriptor in artifacts.values()
+        if isinstance(descriptor, Mapping)
+        and isinstance(descriptor.get("path"), str)
+    ]
+    if len(artifact_paths) != len(artifacts):
+        raise SplitBuildError("grouped split artifact descriptors are invalid")
+    data_roots = {path.parent for path in artifact_paths}
+    if len(data_roots) != 1:
+        raise SplitBuildError(
+            "grouped split artifacts do not share one data directory"
+        )
+    data_root = next(iter(data_roots))
+    existing = [path for path in artifact_paths if path.exists()]
+    if existing:
+        if len(existing) != len(artifact_paths):
+            missing = sorted(
+                str(path) for path in artifact_paths if not path.exists()
+            )
+            raise SplitBuildError(
+                "split artifact directory is incomplete; refusing to mix "
+                f"reconstructed and existing files: {missing}"
+            )
+        result = verify_grouped_split_artifacts(
+            manifest_path=locked_manifest_path,
+            project_root=root,
+        )
+        result["materialized"] = False
+        result["reused_artifacts"] = len(artifact_paths)
+        return result
+    if data_root.exists():
+        raise SplitBuildError(
+            f"split data directory exists without tracked artifacts: {data_root}"
+        )
+
+    dataset = locked_manifest.get("dataset")
+    image_dataset = locked_manifest.get("image_dataset")
+    algorithm = locked_manifest.get("algorithm")
+    smoke = locked_manifest.get("smoke")
+    reservation = locked_manifest.get("reservation")
+    for name, value in (
+        ("dataset", dataset),
+        ("image_dataset", image_dataset),
+        ("algorithm", algorithm),
+        ("smoke", smoke),
+        ("reservation", reservation),
+    ):
+        if not isinstance(value, Mapping):
+            raise SplitBuildError(f"manifest {name} descriptor is invalid")
+
+    loader = official_loader or (
+        lambda dataset_id, revision: load_official_records_from_hugging_face(
+            dataset_id=dataset_id,
+            dataset_revision=revision,
+        )
+    )
+    dataset_id = str(dataset["id"])
+    dataset_revision = str(dataset["revision"])
+    train_records, test_records = loader(dataset_id, dataset_revision)
+    temporary_manifest = locked_manifest_path.with_name(
+        f".{locked_manifest_path.name}.materializing"
+    )
+    if temporary_manifest.exists():
+        raise FileExistsError(
+            f"temporary materialisation manifest already exists: "
+            f"{temporary_manifest}"
+        )
+
+    published_data = False
+    try:
+        build_grouped_splits(
+            official_train_records=train_records,
+            official_test_records=test_records,
+            dataset_id=dataset_id,
+            dataset_revision=dataset_revision,
+            image_dataset_id=str(image_dataset["id"]),
+            image_dataset_revision=str(image_dataset["revision"]),
+            seed=int(algorithm["seed"]),
+            development_fraction=float(algorithm["development_fraction"]),
+            test_fraction=float(algorithm["test_fraction"]),
+            smoke_items=int(smoke["count"]),
+            paths=SplitBuildPaths.resolve(
+                project_root=root,
+                data_root=data_root,
+                manifest_path=temporary_manifest,
+                image_dir=image_dir,
+            ),
+            reserved_source_ids=tuple(reservation["source_img_ids"]),
+        )
+        published_data = True
+        candidate_bytes = temporary_manifest.read_bytes()
+        locked_bytes = locked_manifest_path.read_bytes()
+        if candidate_bytes != locked_bytes:
+            raise SplitBuildError(
+                "reconstructed split manifest differs from the tracked lock: "
+                f"expected {file_sha256(locked_manifest_path)}, observed "
+                f"{file_sha256(temporary_manifest)}"
+            )
+    except Exception:
+        if published_data and data_root.exists():
+            shutil.rmtree(data_root)
+        raise
+    finally:
+        temporary_manifest.unlink(missing_ok=True)
+
+    result = verify_grouped_split_artifacts(
+        manifest_path=locked_manifest_path,
+        project_root=root,
+    )
+    result["materialized"] = True
+    result["reused_artifacts"] = 0
+    return result
 
 
 def select_smoke_records(

@@ -8,6 +8,7 @@ reviewable artifacts that define a paper experiment:
 - `locked_protocol.json`
 - `backend_contract.md` (backend boundary and CUDA acceptance criteria)
 - `backend_contract_pass.json` (compact receipt for the retained evidence bundle)
+- `smoke_training_image_cache_manifest.json` (locked image bytes for the next gate)
 
 Do not place images, predictions, checkpoints, saliency arrays or secrets here. Those belong in
 the ignored local `runs/` tree and the durable GCS run prefix.
@@ -26,5 +27,10 @@ from the pinned dataset revision. Its independent `split-check` gate passed:
 all three primary partitions are source-image disjoint, the contract fixture is
 reserved, and all nine reconstructable artifacts match their recorded hashes.
 
-The next implementation gate is image caching followed by the restart-safe
-20-item development smoke run.
+The image cache gate materialises only the 20 development smoke source images
+and 20 deterministic training source images. Its tracked manifest locks encoded
+and decoded-RGB hashes without committing the JPEGs themselves. The real pinned
+40-image cache and its offline integrity/no-test-contact audit passed. The next
+implementation gate is the now-implemented two-step tiny-LoRA
+checkpoint/resume/reload check on Colab T4. Its PASS evidence must be retained
+before the restart-safe 20-item development smoke run.

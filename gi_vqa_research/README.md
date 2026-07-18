@@ -154,6 +154,16 @@ The first migration slice is executable:
   assigns complete source-image groups and selects a development-only smoke-20;
 - an independent `split-check` hard gate covering source leakage, stable item
   identity, tracked assignments and every generated artifact hash;
+- a pinned, atomic image-cache stage that locks encoded JPEG and decoded-RGB
+  hashes for the 20 development smoke sources and a deterministic 20-source
+  training-loader sample, with separate materialisation and offline audit
+  commands;
+- a clean-clone split materialiser that reconstructs every ignored JSONL and
+  requires byte-for-byte agreement with the tracked grouped-split manifest;
+- a two-process tiny-LoRA CUDA gate that proves a complete step-1 checkpoint,
+  resumes adapter/optimizer/scheduler/trainer state to step 2, requires changed
+  adapter weights, and independently reloads the final PEFT adapter for a
+  finite-loss probe;
 - strict shared-backend smoke configuration validation;
 - dry-run-first GCP bootstrap, detached-job and GCS-sync helpers;
 - standard-library unit tests.
@@ -179,6 +189,21 @@ PYTHONPATH=src python3 -m gi_vqa.cli split-check \
   --manifest protocols/study1/grouped_split_manifest.json --project-root .
 ```
 
+Prepare and audit the bounded image cache:
+
+```bash
+PYTHONPATH=src python3 -m gi_vqa.cli prepare-image-cache \
+  --config configs/study1/smoke.yaml --project-root . \
+  --training-source-images 20
+PYTHONPATH=src python3 -m gi_vqa.cli image-cache-check \
+  --manifest protocols/study1/smoke_training_image_cache_manifest.json \
+  --project-root .
+```
+
+The CUDA training gate is launched from
+`notebooks/01_colab_t4_training_gate.ipynb`; it clones and tests one exact Git
+commit and returns a downloadable evidence bundle.
+
 See [`MIGRATION.md`](MIGRATION.md) for the mapping from the existing Study 1
 notebook to the new modules.
 
@@ -188,8 +213,10 @@ This scaffold does not yet run the experiment end to end. The shared PaliGemma
 backend and corrected training-template boundary passed the revised Colab T4
 contract. The grouped split builder has now generated the pinned tracked
 manifest, and its independent source-leakage and artifact-integrity gate passed.
-Complete training orchestration, image caching, per-item restart-safe stage
-storage, perturbation generation, metrics and reporting still need to be
-extracted. The next gate is image caching followed by a restart-safe 20-item
-development run. The base-model contract validates plumbing; an immutable Study
-adapter smoke follows after training.
+Complete training orchestration, per-item restart-safe stage storage,
+perturbation generation, metrics and reporting still need to be extracted. The
+real bounded image cache and its offline integrity/no-test-contact audit passed.
+The two-step tiny-LoRA training/resume/reload gate is implemented and awaits its
+Colab T4 PASS. The restart-safe 20-item development run follows that evidence.
+The base-model contract validates plumbing; an immutable Study adapter smoke
+follows after research training.

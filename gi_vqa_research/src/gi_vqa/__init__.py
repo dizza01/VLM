@@ -29,6 +29,13 @@ from .identifiers import (
     source_image_id,
     stable_item_id,
 )
+from .image_cache import (
+    IMAGE_CACHE_SCHEMA_VERSION,
+    ImageCacheError,
+    materialize_image_cache,
+    prepare_image_cache,
+    verify_image_cache,
+)
 from .jsonl import JsonlDecodeError, iter_jsonl, read_jsonl, write_jsonl_atomic
 from .model_spec import (
     PALIGEMMA_BACKEND,
@@ -61,6 +68,7 @@ from .splits import (
     SplitBuildError,
     SplitBuildPaths,
     build_grouped_splits,
+    materialize_grouped_split_artifacts,
     select_smoke_records,
     verify_grouped_split_artifacts,
 )
@@ -72,6 +80,8 @@ __all__ = [
     "BackendDependencyError",
     "BackendProvenance",
     "GenerationResult",
+    "IMAGE_CACHE_SCHEMA_VERSION",
+    "ImageCacheError",
     "JsonlDecodeError",
     "MANIFEST_SCHEMA_VERSION",
     "PALIGEMMA_BACKEND",
@@ -111,6 +121,9 @@ __all__ = [
     "iter_jsonl",
     "load_config",
     "load_run_manifest",
+    "materialize_image_cache",
+    "materialize_grouped_split_artifacts",
+    "prepare_image_cache",
     "question_text",
     "read_jsonl",
     "merge_jsonl_shards_atomic",
@@ -118,6 +131,7 @@ __all__ = [
     "stable_item_id",
     "select_smoke_records",
     "validate_jsonl_shards",
+    "verify_image_cache",
     "verify_grouped_split_artifacts",
     "validate_config",
     "write_jsonl_atomic",
