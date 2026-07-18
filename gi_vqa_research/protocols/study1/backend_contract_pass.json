@@ -1,0 +1,21 @@
+{
+  "bundle_manifest_sha256": "2962f5c0341b463aae893e0f8a999ecdf878cdc437034422dc2d34745385af20",
+  "checks_passed": 61,
+  "contract_finished_at_utc": "2026-07-18T20:19:07.291843+00:00",
+  "contract_report_sha256": "1fc90808f313f9eff4342cdbb2fb08cc8649a2e02f4e56588c16d7cb3e673ea3",
+  "contract_schema_version": "gi-vqa-colab-t4-backend-contract-v2",
+  "contract_started_at_utc": "2026-07-18T20:15:18.237265+00:00",
+  "evidence_members_sha256": {
+    "attribution_maps.npz": "cd8f1045979b057b2c2bfcc0aa0af85dca1990b63ea6f05b42ea486b67024d33",
+    "bootstrap_environment.json": "5a94ec5517c8a674db005cbafd7a5756d37649bf8af5ec559c3e4c692f9fee6a",
+    "contract_report.json": "1fc90808f313f9eff4342cdbb2fb08cc8649a2e02f4e56588c16d7cb3e673ea3",
+    "diagnostic_image.jpg": "f2926b17c9caf0774fd8597ed35c7c2b22139d3c9d2965974af32ba5c9173e3f",
+    "pip_check.txt": "d7405d327a309dcb27b552a8ca1c3c9477cfdeb53febd6c4cb9f284409aeb65f",
+    "pip_freeze.txt": "68fad7ce86ca9ee86ea943f7b0400a582e07490dc87cdbfc75c209ea6eaee175"
+  },
+  "gpu": "Tesla T4",
+  "python": "3.11.13",
+  "repository_commit": "855ed1a88eb645beec06f79e5cc2fb59725b4227",
+  "schema_version": "gi-vqa-backend-contract-pass-receipt-v1",
+  "status": "PASS"
+}

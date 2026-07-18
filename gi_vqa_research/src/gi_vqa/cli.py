@@ -20,6 +20,14 @@ from .config import ConfigError, config_sha256, load_config, validate_config
 from .jsonl import iter_jsonl
 from .provenance import build_run_manifest, canonical_json_sha256, write_run_manifest
 from .shards import merge_jsonl_shards_atomic
+from .splits import (
+    CONTRACT_RESERVED_SOURCE_IDS,
+    SplitBuildPaths,
+    build_grouped_splits,
+    load_official_records_from_hugging_face,
+    load_official_records_from_jsonl,
+    verify_grouped_split_artifacts,
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -71,6 +79,53 @@ def _build_parser() -> argparse.ArgumentParser:
         help="report overlaps instead of treating them as a hard failure",
     )
     audit_parser.set_defaults(handler=_audit)
+
+    split_parser = subparsers.add_parser(
+        "prepare-splits",
+        help="build leakage-safe Study 1 grouped splits and smoke selection",
+    )
+    split_parser.add_argument("--config", required=True, type=Path)
+    split_parser.add_argument("--project-root", type=Path, default=Path("."))
+    split_parser.add_argument(
+        "--data-root",
+        type=Path,
+        default=Path("data/processed/study1"),
+    )
+    split_parser.add_argument("--manifest", type=Path)
+    split_parser.add_argument(
+        "--image-dir",
+        type=Path,
+        default=Path("data/images"),
+        help="portable image paths to place in generated records; images are not downloaded",
+    )
+    split_parser.add_argument("--official-train", type=Path)
+    split_parser.add_argument("--official-test", type=Path)
+    split_parser.add_argument(
+        "--development-fraction",
+        type=float,
+        default=0.10,
+    )
+    split_parser.add_argument("--test-fraction", type=float, default=0.10)
+    split_parser.add_argument("--smoke-items", type=int)
+    split_parser.add_argument(
+        "--reserve-source",
+        action="append",
+        default=[],
+        help="reserve an additional source_img_id from every research split",
+    )
+    split_parser.set_defaults(handler=_prepare_splits)
+
+    split_check_parser = subparsers.add_parser(
+        "split-check",
+        help="verify grouped split files against their tracked manifest",
+    )
+    split_check_parser.add_argument("--manifest", required=True, type=Path)
+    split_check_parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=Path("."),
+    )
+    split_check_parser.set_defaults(handler=_split_check)
 
     manifest_parser = subparsers.add_parser(
         "manifest", help="capture an immutable pre-run manifest"
@@ -136,6 +191,122 @@ def _audit(args: argparse.Namespace) -> int:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(payload + "\n", encoding="utf-8")
     return 0 if report.is_source_disjoint else 1
+
+
+def _prepare_splits(args: argparse.Namespace) -> int:
+    project_root = args.project_root.resolve()
+    config_path = (
+        args.config.resolve()
+        if args.config.is_absolute()
+        else (project_root / args.config).resolve()
+    )
+    config = validate_config(
+        load_config(config_path),
+        require_resolved=True,
+    )
+    data = config["data"]
+    dataset_id = data.get("dataset")
+    image_dataset_id = data.get("image_dataset")
+    if not isinstance(dataset_id, str) or not dataset_id.strip():
+        raise ValueError("config data.dataset must be a non-empty string")
+    if not isinstance(image_dataset_id, str) or not image_dataset_id.strip():
+        raise ValueError(
+            "config data.image_dataset must be a non-empty string"
+        )
+    if not isinstance(config.get("seed"), int) or isinstance(
+        config.get("seed"),
+        bool,
+    ):
+        raise ValueError("split construction requires config.seed")
+
+    supplied_official = (
+        args.official_train is not None,
+        args.official_test is not None,
+    )
+    if supplied_official[0] != supplied_official[1]:
+        raise ValueError(
+            "--official-train and --official-test must be supplied together"
+        )
+    if all(supplied_official):
+        official_train = (
+            args.official_train.resolve()
+            if args.official_train.is_absolute()
+            else (project_root / args.official_train).resolve()
+        )
+        official_test = (
+            args.official_test.resolve()
+            if args.official_test.is_absolute()
+            else (project_root / args.official_test).resolve()
+        )
+        train_records, test_records = load_official_records_from_jsonl(
+            train_path=official_train,
+            test_path=official_test,
+        )
+        source_mode = "provided_jsonl"
+    else:
+        train_records, test_records = (
+            load_official_records_from_hugging_face(
+                dataset_id=dataset_id,
+                dataset_revision=data["dataset_revision"],
+            )
+        )
+        source_mode = "hugging_face"
+
+    manifest_value = args.manifest or data.get("split_manifest")
+    if not manifest_value:
+        raise ValueError(
+            "provide --manifest or config data.split_manifest"
+        )
+    manifest_path = Path(manifest_value)
+    smoke_items = (
+        args.smoke_items
+        if args.smoke_items is not None
+        else config["execution"].get("max_items")
+    )
+    if not isinstance(smoke_items, int) or isinstance(smoke_items, bool):
+        raise ValueError(
+            "provide --smoke-items or an integer execution.max_items"
+        )
+    reserved = tuple(
+        dict.fromkeys(
+            [
+                *CONTRACT_RESERVED_SOURCE_IDS,
+                *[str(value) for value in args.reserve_source],
+            ]
+        )
+    )
+    paths = SplitBuildPaths.resolve(
+        project_root=project_root,
+        data_root=args.data_root,
+        manifest_path=manifest_path,
+        image_dir=args.image_dir,
+    )
+    result = build_grouped_splits(
+        official_train_records=train_records,
+        official_test_records=test_records,
+        dataset_id=dataset_id,
+        dataset_revision=data["dataset_revision"],
+        image_dataset_id=image_dataset_id,
+        image_dataset_revision=data["image_dataset_revision"],
+        seed=config["seed"],
+        development_fraction=args.development_fraction,
+        test_fraction=args.test_fraction,
+        smoke_items=smoke_items,
+        paths=paths,
+        reserved_source_ids=reserved,
+    )
+    result["source_mode"] = source_mode
+    print(json.dumps(result, indent=2))
+    return 0
+
+
+def _split_check(args: argparse.Namespace) -> int:
+    result = verify_grouped_split_artifacts(
+        manifest_path=args.manifest,
+        project_root=args.project_root,
+    )
+    print(json.dumps(result, indent=2))
+    return 0
 
 
 def _manifest(args: argparse.Namespace) -> int:

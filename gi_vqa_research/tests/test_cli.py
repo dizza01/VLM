@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from contextlib import redirect_stdout
 import io
 import json
-from pathlib import Path
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
 
 from gi_vqa.cli import main
 from gi_vqa.jsonl import read_jsonl, write_jsonl_atomic
@@ -72,7 +72,105 @@ class CliTests(unittest.TestCase):
             )
             self.assertIn('"record_count": 2', output.getvalue())
 
+    def test_prepare_and_check_grouped_splits(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = {
+                "schema_version": 1,
+                "study": "study1",
+                "profile": "smoke",
+                "seed": 42,
+                "data": {
+                    "dataset": "example/dataset",
+                    "dataset_revision": "d" * 40,
+                    "image_dataset": "example/images",
+                    "image_dataset_revision": "i" * 40,
+                    "split_manifest": (
+                        "protocols/study1/grouped_split_manifest.json"
+                    ),
+                },
+                "model": {
+                    "base_model_revision": "m" * 40,
+                    "adapter": None,
+                    "adapter_revision": None,
+                },
+                "execution": {
+                    "evaluation_partition": "development",
+                    "max_items": 2,
+                    "shard_count": 1,
+                },
+                "monitoring": {},
+                "storage": {},
+            }
+            config_path = root / "config.json"
+            config_path.write_text(json.dumps(config), encoding="utf-8")
+
+            def raw_record(image_id: str, index: int) -> dict:
+                return {
+                    "img_id": image_id,
+                    "question": f"Question {index}",
+                    "answer": f"Answer {index}",
+                    "complexity": index % 2,
+                    "question_class": ["location"],
+                    "original": True,
+                }
+
+            train_path = write_jsonl_atomic(
+                root / "official_train.jsonl",
+                [
+                    raw_record("cl8k2u1pv1e4z08320vbv6jzb", 100),
+                    *[
+                        raw_record(f"train-{index:02d}", index)
+                        for index in range(20)
+                    ],
+                ],
+            )
+            test_path = write_jsonl_atomic(
+                root / "official_test.jsonl",
+                [
+                    raw_record(f"test-{index:02d}", 20 + index)
+                    for index in range(10)
+                ],
+            )
+            output = io.StringIO()
+            with redirect_stdout(output):
+                status = main(
+                    [
+                        "prepare-splits",
+                        "--config",
+                        "config.json",
+                        "--project-root",
+                        str(root),
+                        "--official-train",
+                        str(train_path),
+                        "--official-test",
+                        str(test_path),
+                        "--development-fraction",
+                        "0.2",
+                        "--test-fraction",
+                        "0.2",
+                    ]
+                )
+            self.assertEqual(status, 0)
+            self.assertIn('"status": "PASS"', output.getvalue())
+
+            manifest_path = (
+                root / "protocols/study1/grouped_split_manifest.json"
+            )
+            check_output = io.StringIO()
+            with redirect_stdout(check_output):
+                check_status = main(
+                    [
+                        "split-check",
+                        "--manifest",
+                        str(manifest_path),
+                        "--project-root",
+                        str(root),
+                    ]
+                )
+            self.assertEqual(check_status, 0)
+            self.assertIn('"smoke_items": 2', check_output.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()
-

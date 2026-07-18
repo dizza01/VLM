@@ -55,6 +55,15 @@ from .shards import (
     merge_jsonl_shards_atomic,
     validate_jsonl_shards,
 )
+from .splits import (
+    CONTRACT_RESERVED_SOURCE_IDS,
+    GROUPED_SPLIT_SCHEMA_VERSION,
+    SplitBuildError,
+    SplitBuildPaths,
+    build_grouped_splits,
+    select_smoke_records,
+    verify_grouped_split_artifacts,
+)
 
 __all__ = [
     "AttributionError",
@@ -74,8 +83,12 @@ __all__ = [
     "RecordFormatError",
     "RecordIdError",
     "ConfigError",
+    "CONTRACT_RESERVED_SOURCE_IDS",
+    "GROUPED_SPLIT_SCHEMA_VERSION",
     "SplitAudit",
     "SplitAuditReport",
+    "SplitBuildError",
+    "SplitBuildPaths",
     "SplitLeakageError",
     "TargetScore",
     "VisionLanguageBackend",
@@ -89,6 +102,7 @@ __all__ = [
     "audit_jsonl_splits",
     "audit_records",
     "build_run_manifest",
+    "build_grouped_splits",
     "canonical_json_sha256",
     "canonical_text",
     "config_sha256",
@@ -102,7 +116,9 @@ __all__ = [
     "merge_jsonl_shards_atomic",
     "source_image_id",
     "stable_item_id",
+    "select_smoke_records",
     "validate_jsonl_shards",
+    "verify_grouped_split_artifacts",
     "validate_config",
     "write_jsonl_atomic",
     "write_run_manifest",

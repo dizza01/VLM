@@ -21,6 +21,8 @@ hf_cache/
 # Generated run artifacts
 runs/*
 !runs/README.md
+contract_bundle/
+contract_bundle.zip
 checkpoints/
 predictions/
 attributions/
@@ -33,4 +35,3 @@ notebooks/generated/
 # Local infrastructure state
 infra/gcp/local.env
 infra/gcp/*.auto.tfvars
-

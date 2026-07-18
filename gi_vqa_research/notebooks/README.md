@@ -52,13 +52,14 @@ unrelated packages preinstalled in the shared Colab image are retained as
 warnings; the package-level runner still verifies the exact versions it uses.
 
 Contract v1 identified a real off-by-one in the built-in ms-swift 3.7.0
-PaliGemma training `token_type_ids`. Contract v2 records that raw one-token
-difference, requires it to match the known pattern, and then tests the
-versioned `gi_vqa_paligemma_v1` template used by
-`python -m gi_vqa.training` for exact equality with the direct processor. This
-is a compatibility correction, not a relaxed check.
+PaliGemma training `token_type_ids`. Contract v2 recorded that raw one-token
+difference, required it to match the known pattern, tested the versioned
+`gi_vqa_paligemma_v1` template for exact equality with the direct processor,
+and passed all 61 checks on the reference T4 environment. This is compatibility
+evidence, not a research result.
 
 A PASS establishes only that the shared backend works in the pinned reference
-environment. The fixed item is excluded from research results and reserved
-from future split manifests. Do not proceed to the 20-item smoke until the
-grouped split manifest has been built and audited.
+environment. The fixed item is excluded from research results and is reserved
+by the tracked grouped split manifest. The grouped split and artifact-integrity
+audit has now passed; image caching and the restart-safe 20-item development
+runner are the next gate.

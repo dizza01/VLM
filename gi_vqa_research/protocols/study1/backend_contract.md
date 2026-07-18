@@ -1,9 +1,11 @@
 # Provisional Study 1 PaliGemma backend contract
 
 Status: contract v1 exposed an ms-swift 3.7.0 PaliGemma token-type boundary
-defect; the versioned project template and contract v2 correction are
-implemented, with the revised Colab T4 execution pending. This is not yet a
-locked confirmatory protocol.
+defect. Contract v2, including the versioned project-template correction,
+passed all 61 recorded checks on a Colab T4 at repository commit
+`855ed1a88eb645beec06f79e5cc2fb59725b4227`. The compact evidence receipt is
+tracked in `backend_contract_pass.json`; the full hash-verified bundle remains
+an external/local artifact. This is not yet a locked confirmatory protocol.
 
 ## Model identity
 
@@ -97,7 +99,7 @@ The executable CUDA contract pins official training row `143500`, source image
 runner. It verifies that this source ID is absent from the pinned official test
 split. This reduces accidental test contact, but it does not turn the fixture
 into a research evaluation item: it is excluded from every reported result and
-must be reserved when the grouped split manifest is built.
+is reserved by the grouped split manifest.
 
 ## Hard failures
 

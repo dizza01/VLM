@@ -149,6 +149,11 @@ The first migration slice is executable:
   evidence bundle;
 - a guarded `gi-vqa-train`/`python -m gi_vqa.training` entrypoint that forces
   the versioned corrected PaliGemma template instead of raw `swift sft`;
+- a deterministic `prepare-splits` builder that unions the pinned official
+  metadata, removes ambiguous annotations, reserves the contract fixture,
+  assigns complete source-image groups and selects a development-only smoke-20;
+- an independent `split-check` hard gate covering source leakage, stable item
+  identity, tracked assignments and every generated artifact hash;
 - strict shared-backend smoke configuration validation;
 - dry-run-first GCP bootstrap, detached-job and GCS-sync helpers;
 - standard-library unit tests.
@@ -168,10 +173,10 @@ PYTHONPATH=src python3 -m gi_vqa.cli \
 Audit prepared splits:
 
 ```bash
-PYTHONPATH=src python3 -m gi_vqa.cli audit \
-  --split train=/path/to/train.jsonl \
-  --split development=/path/to/dev.jsonl \
-  --split test=/path/to/test.jsonl
+PYTHONPATH=src python3 -m gi_vqa.cli prepare-splits \
+  --config configs/study1/smoke.yaml --project-root .
+PYTHONPATH=src python3 -m gi_vqa.cli split-check \
+  --manifest protocols/study1/grouped_split_manifest.json --project-root .
 ```
 
 See [`MIGRATION.md`](MIGRATION.md) for the mapping from the existing Study 1
@@ -180,14 +185,11 @@ notebook to the new modules.
 ## Deliberately not implemented yet
 
 This scaffold does not yet run the experiment end to end. The shared PaliGemma
-backend and corrected training-template boundary are implemented, but their
-numerical behaviour has not yet passed the revised contract with the pinned 3B
-checkpoint on CUDA. Complete training orchestration, per-item
-restart-safe stage storage, data selection, perturbation generation, metrics
-and reporting still need to be extracted. The next gate is to execute
-[`notebooks/00_colab_t4_backend_contract.ipynb`](notebooks/00_colab_t4_backend_contract.ipynb)
-on a Colab T4 and retain its evidence bundle. The grouped split manifest and
-exact 20-item smoke selection must then be created from the audited dataset
-before the restart-safe end-to-end smoke runner can execute. The current
-base-model contract validates plumbing; an immutable Study adapter smoke
-follows after training.
+backend and corrected training-template boundary passed the revised Colab T4
+contract. The grouped split builder has now generated the pinned tracked
+manifest, and its independent source-leakage and artifact-integrity gate passed.
+Complete training orchestration, image caching, per-item restart-safe stage
+storage, perturbation generation, metrics and reporting still need to be
+extracted. The next gate is image caching followed by a restart-safe 20-item
+development run. The base-model contract validates plumbing; an immutable Study
+adapter smoke follows after training.

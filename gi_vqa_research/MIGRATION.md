@@ -6,10 +6,10 @@ small, testable stages. This prevents a large rewrite from changing the scientif
 | Existing notebook responsibility | New destination | Current state |
 | --- | --- | --- |
 | Environment and study configuration | `configs/study1/`, `gi_vqa.config`, run manifest | Foundation implemented |
-| JSONL creation and image caching | `gi_vqa.data` | Planned extraction |
-| Split audit and leakage hard gates | `gi_vqa.audit` | Implemented and tested |
+| JSONL creation and image caching | `gi_vqa.splits`, future image cache | Grouped metadata splits implemented; image cache pending |
+| Split audit and leakage hard gates | `gi_vqa.splits`, `gi_vqa.audit` | Built from pinned metadata; independent gate passed |
 | Protocol lock | `protocols/study1/` | Tracked destination created |
-| Shared PaliGemma model contract | `gi_vqa.model_spec`, `gi_vqa.backends`, `gi_vqa.contract` | Implemented; Colab T4 execution pending |
+| Shared PaliGemma model contract | `gi_vqa.model_spec`, `gi_vqa.backends`, `gi_vqa.contract` | Implemented; Colab T4 contract v2 passed |
 | Training | `gi_vqa.training` | Corrected Swift template and guarded entrypoint implemented; complete orchestration planned |
 | Deterministic inference and controls | `gi_vqa.infer` | Backend implemented; resumable stage pending |
 | Answer metrics and stratification | `gi_vqa.metrics` | Planned extraction |
@@ -33,9 +33,7 @@ small, testable stages. This prevents a large rewrite from changing the scientif
 
 ## Next implementation slice
 
-Before the complete 20-item path, run
-`notebooks/00_colab_t4_backend_contract.ipynb` on a Colab T4. It clones an
-exact commit and executes the package-level contract, which will:
+The Colab T4 package-level backend contract has passed. It established:
 
 1. verify the exact reference software/GPU environment and immutable inputs;
 2. load the pinned processor and base checkpoint;
@@ -49,8 +47,22 @@ exact commit and executes the package-level contract, which will:
 8. produce finite, nonconstant attention and Grad-CAM maps; and
 9. record peak CUDA memory, hashes and resolved provenance.
 
-This is a compatibility test, not a research result. Once it passes, implement
-the per-item restart-safe stages needed for the complete development smoke run.
+This is compatibility evidence, not a research result. The grouped split hard
+gate has also passed:
+
+```bash
+python -m gi_vqa.cli prepare-splits \
+  --config configs/study1/smoke.yaml \
+  --project-root .
+python -m gi_vqa.cli split-check \
+  --manifest protocols/study1/grouped_split_manifest.json \
+  --project-root .
+```
+
+The tracked manifest records 126,064 training, 16,477 development and 16,297
+test items across mutually disjoint source-image groups. The builder reserved
+the contract fixture and selected the fixed 20-item development smoke set.
+Image caching and the per-item restart-safe stages are now the next gate.
 
 All extracted PaliGemma training must run through:
 
