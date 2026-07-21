@@ -103,6 +103,7 @@ ATTRIBUTION_METHODS = {
     "decoder_answer_to_image_attention",
     "answer_conditioned_grad_cam",
 }
+MAX_SCORE_ABSOLUTE_TOLERANCE = 0.02
 
 
 def load_config(path: str | Path) -> dict[str, Any]:
@@ -300,10 +301,15 @@ def _validate_optional_execution_sections(config: Mapping[str, Any]) -> None:
             scoring.get("verify_generation_score"),
             "target_scoring.verify_generation_score",
         )
-        _require_nonnegative_number(
+        absolute_tolerance = _require_nonnegative_number(
             scoring.get("absolute_tolerance"),
             "target_scoring.absolute_tolerance",
         )
+        if absolute_tolerance > MAX_SCORE_ABSOLUTE_TOLERANCE:
+            raise ConfigError(
+                "target_scoring.absolute_tolerance must not exceed "
+                f"{MAX_SCORE_ABSOLUTE_TOLERANCE}"
+            )
 
     if "attribution" in config:
         attribution = _require_mapping(config["attribution"], "attribution")

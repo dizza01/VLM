@@ -559,6 +559,10 @@ def _execute_item(
 
     metadata = record.get("metadata")
     metadata = dict(metadata) if isinstance(metadata, Mapping) else {}
+    score_verification = _required_mapping(
+        prediction.get("score_verification"),
+        "prediction score verification",
+    )
     summary = {
         "item_id": item_id,
         "source_img_id": source_id,
@@ -576,6 +580,15 @@ def _execute_item(
         "mean_token_logprob": generation.mean_token_logprob,
         "sequence_confidence": generation.sequence_confidence,
         "fixed_answer_mean_token_logprob": original_score,
+        "generation_teacher_forcing_score_parity": {
+            "absolute_tolerance": float(score_verification["absolute_tolerance"]),
+            "maximum_absolute_difference": float(
+                score_verification["maximum_absolute_difference"]
+            ),
+            "mean_absolute_difference": float(
+                score_verification["mean_absolute_difference"]
+            ),
+        },
         "interventions": all_interventions,
     }
     completion = {
@@ -947,6 +960,23 @@ def _aggregate_smoke_metrics(summaries: Sequence[Mapping[str, Any]]) -> dict[str
     exact = [bool(row["normalized_exact_match"]) for row in summaries]
     confidences = [float(row["sequence_confidence"]) for row in summaries]
     logprobs = [float(row["fixed_answer_mean_token_logprob"]) for row in summaries]
+    parity = [
+        _required_mapping(
+            row["generation_teacher_forcing_score_parity"],
+            "summary generation/teacher-forcing parity",
+        )
+        for row in summaries
+    ]
+    parity_tolerances = {
+        float(value["absolute_tolerance"])
+        for value in parity
+    }
+    if len(parity_tolerances) != 1:
+        raise SmokeRunError("items used different generation-score tolerances")
+    parity_maxima = [
+        float(value["maximum_absolute_difference"])
+        for value in parity
+    ]
     interventions = [
         intervention
         for row in summaries
@@ -979,6 +1009,13 @@ def _aggregate_smoke_metrics(summaries: Sequence[Mapping[str, Any]]) -> dict[str
         "normalized_exact_match": sum(exact) / len(exact),
         "mean_sequence_confidence": sum(confidences) / len(confidences),
         "mean_fixed_answer_logprob": sum(logprobs) / len(logprobs),
+        "generation_teacher_forcing_score_parity": {
+            "absolute_tolerance": next(iter(parity_tolerances)),
+            "maximum_absolute_difference": max(parity_maxima),
+            "mean_item_maximum_absolute_difference": (
+                sum(parity_maxima) / len(parity_maxima)
+            ),
+        },
         "intervention_scores": len(interventions),
         "finite_intervention_scores": all(
             math.isfinite(float(value["target_score"]["mean_token_logprob"]))

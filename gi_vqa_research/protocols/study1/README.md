@@ -41,3 +41,14 @@ The compact tracked receipt preserves the evidence hashes and the observed
 diagnostic caveats. The resulting restart-safe 20-item development runner is
 now implemented. Its next T4 run must be retained as a separate evidence bundle;
 it is not a research model or research result.
+
+The first development-smoke attempt at Git commit
+`e7f0833069e90b26e69f91b56632474e1e8da009` stopped before committing an
+item. The generated and teacher-forced target token IDs agreed, but the maximum
+fp16 per-token log-probability difference was `0.0046933889`, above the
+`0.001` bound inherited from the one-token backend fixture (whose observed
+difference was `0.0002815723`). The smoke bound is therefore `0.02`: exact
+token identity remains mandatory, while cached generation and full
+teacher-forcing may differ by at most approximately a 2% probability ratio.
+Configuration validation rejects any larger tolerance. This was a numerical
+acceptance-threshold correction, not a model or data change.

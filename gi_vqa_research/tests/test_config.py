@@ -306,6 +306,12 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ConfigError, "unsupported perturbation"):
             validate_config(config)
 
+    def test_target_score_tolerance_has_a_strict_upper_bound(self) -> None:
+        config = model_execution_config()
+        config["target_scoring"]["absolute_tolerance"] = 0.0200001
+        with self.assertRaisesRegex(ConfigError, "must not exceed 0.02"):
+            validate_config(config)
+
 
 if __name__ == "__main__":
     unittest.main()

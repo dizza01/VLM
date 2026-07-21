@@ -116,3 +116,8 @@ intervention and an immutable diagnostic report. The bundle contains the run
 manifest, compact JSON/JSONL/NPZ artifacts, bootstrap evidence and dependency
 lock—not model weights or cached source images. This development-only run checks
 the entire execution path; it is explicitly excluded from research results.
+
+The fp16 parity check requires exact generated/teacher-forced target token IDs
+and limits their maximum per-token log-probability difference to `0.02`. This
+bound accommodates the distinct cached-generation and full-sequence execution
+paths while limiting their implied probability ratio to approximately 2%.

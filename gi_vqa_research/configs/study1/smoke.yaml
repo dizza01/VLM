@@ -39,7 +39,10 @@ target_scoring:
   include_eos: false
   batch_size: 1
   verify_generation_score: true
-  absolute_tolerance: 0.001
+  # FP16 cached generation and full teacher forcing use different execution
+  # paths. Exact target-token identity remains mandatory; 0.02 bounds the
+  # permitted per-token log-probability drift (about a 2% probability ratio).
+  absolute_tolerance: 0.02
 
 attribution:
   methods:

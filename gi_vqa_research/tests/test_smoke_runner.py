@@ -279,6 +279,14 @@ class SmokeRunnerTests(unittest.TestCase):
             self.assertEqual(file_sha256(first_completion), first_completion_hash)
             self.assertTrue((run_dir / "metrics/smoke_report.json").is_file())
             self.assertTrue((run_dir / "predictions/smoke_results.jsonl").is_file())
+            report = json.loads(
+                (run_dir / "metrics/smoke_report.json").read_text(encoding="utf-8")
+            )
+            parity = report["metrics"][
+                "generation_teacher_forcing_score_parity"
+            ]
+            self.assertEqual(parity["absolute_tolerance"], 0.0001)
+            self.assertEqual(parity["maximum_absolute_difference"], 0.0)
 
 
 if __name__ == "__main__":
