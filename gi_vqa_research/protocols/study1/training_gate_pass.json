@@ -1,0 +1,60 @@
+{
+  "adapter_reload": {
+    "adapter_parameters": 19611648,
+    "finite_loss": true,
+    "loss": 4.4105658531188965,
+    "peak_cuda_memory_bytes": 3741850112,
+    "probe_item_id": "25370454703301fd407d"
+  },
+  "audit_notes": [
+    "The global Colab pip check reported only unrelated preinstalled ipython/jedi and gcsfs/fsspec conflicts; the scoped GI-VQA dependency audit found zero conflicts.",
+    "Phase 1 logged grad_norm as nan. The resumed phase logged a finite grad_norm of 9.27615929, changed the adapter-weight hash, and the independently reloaded adapter produced finite loss. This gate is diagnostic infrastructure evidence, not a research training result."
+  ],
+  "bundle_manifest_sha256": "01e43d20a193c6ebc69d36d2f7511fb35907818b99843d72254853780bff730c",
+  "checks_passed": 15,
+  "configuration_canonical_sha256": "79e34a0b76db824235493421b34b054db519eb5113850e92bb08bc2cdce33796",
+  "diagnostic_only": true,
+  "evidence_members_sha256": {
+    "adapter_reload.log": "01339692473c77c9a70e6d6d09db87b7745cfecc2f91ec6606714f049db1cf0b",
+    "bootstrap_environment.json": "d69fb8375c92f329c6722a989a52a43ce7c75d0118618acfb8144d8d638b75ee",
+    "phase_1_training.log": "5adf5711fa89534246b57818660724647f272a7671d151cf776ffa639eb49d29",
+    "phase_2_resume.log": "14595505f1ef60cbfcb86a1fe7164d6b4c32f6cedee9df0c6dfbfd7c95520996",
+    "pip_check.txt": "d7405d327a309dcb27b552a8ca1c3c9477cfdeb53febd6c4cb9f284409aeb65f",
+    "pip_freeze.txt": "62193a3bb3ec8a13ea4d9f6d5505fd9622cfe5746066a5a0e8e1d7cbfc30a956",
+    "training_gate_report.json": "664c594ca5dfd05211eafcdb6bdc65decd585fffa0d38090833878ce9dfd788b",
+    "training_gate_train.jsonl": "197912b45bea32d49df0a7bb2fd57b39d11ca1da27d7c57f0f56de052b3a5789"
+  },
+  "excluded_from_research_results": true,
+  "gpu": "Tesla T4",
+  "image_cache_manifest_sha256": "d07f870362cd977465dc6afeae1d3a427c9a595af8bbdf1e721ea1d7142f6a7c",
+  "python": "3.11.13",
+  "repository_commit": "da94b251c0f49d4fa74e4351c3487f5ce3286ade",
+  "schema_version": "gi-vqa-training-gate-pass-receipt-v1",
+  "split_manifest_sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885",
+  "status": "PASS",
+  "training": {
+    "adapter_changed_after_resume": true,
+    "phase_1": {
+      "adapter_sha256": "80001ef3fe4de73671748a01d0c28458d58f037c106bd65483dccc647d26a83c",
+      "global_step": 1,
+      "logged_grad_norm": "nan",
+      "loss": 3.398560047149658
+    },
+    "phase_2": {
+      "adapter_sha256": "5b339327361bd0e1915546abc00a0eebdabfa58eb0be9555f644f8721d8760a8",
+      "global_step": 2,
+      "logged_grad_norm": 9.27615929,
+      "loss": 6.672306060791016
+    },
+    "resumed_from_global_step": 1
+  },
+  "training_gate_finished_at_utc": "2026-07-20T11:17:08.841273+00:00",
+  "training_gate_report_sha256": "664c594ca5dfd05211eafcdb6bdc65decd585fffa0d38090833878ce9dfd788b",
+  "training_gate_schema_version": "gi-vqa-colab-t4-training-gate-v1",
+  "training_gate_started_at_utc": "2026-07-20T11:07:04.718415+00:00",
+  "training_subset": {
+    "jsonl_sha256": "197912b45bea32d49df0a7bb2fd57b39d11ca1da27d7c57f0f56de052b3a5789",
+    "records": 20,
+    "unique_source_images": 20
+  }
+}

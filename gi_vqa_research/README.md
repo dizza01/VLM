@@ -164,6 +164,11 @@ The first migration slice is executable:
   resumes adapter/optimizer/scheduler/trainer state to step 2, requires changed
   adapter weights, and independently reloads the final PEFT adapter for a
   finite-loss probe;
+- a locked, restart-safe 20-item development runner that atomically stores
+  predictions, both attribution maps, deletion/insertion controls and
+  fixed-answer scores before validating its shard merge and diagnostic report;
+- deterministic patch interventions covering most-salient, least-salient and
+  seeded-random regions with gray/blur deletion and blur insertion baselines;
 - strict shared-backend smoke configuration validation;
 - dry-run-first GCP bootstrap, detached-job and GCS-sync helpers;
 - standard-library unit tests.
@@ -202,7 +207,24 @@ PYTHONPATH=src python3 -m gi_vqa.cli image-cache-check \
 
 The CUDA training gate is launched from
 `notebooks/01_colab_t4_training_gate.ipynb`; it clones and tests one exact Git
-commit and returns a downloadable evidence bundle.
+commit and returns a downloadable evidence bundle. The reference Colab T4 run
+passed all 15 checks at commit
+`da94b251c0f49d4fa74e4351c3487f5ce3286ade`; its compact receipt is
+`protocols/study1/training_gate_pass.json`.
+
+The next gate is launched from
+`notebooks/02_colab_t4_development_smoke.ipynb`. It intentionally completes one
+item in a first process and then resumes the same immutable run in a second
+process. A PASS requires 20/20 completed development items, one reused item,
+19 newly completed items, finite intervention scores, an exact validated merge,
+and a compact evidence bundle. This is still diagnostic infrastructure evidence,
+not a paper result.
+
+The equivalent command on a compatible GPU host is:
+
+```bash
+make development-smoke EXPECTED_COMMIT=<full-40-character-commit>
+```
 
 See [`MIGRATION.md`](MIGRATION.md) for the mapping from the existing Study 1
 notebook to the new modules.
@@ -213,10 +235,11 @@ This scaffold does not yet run the experiment end to end. The shared PaliGemma
 backend and corrected training-template boundary passed the revised Colab T4
 contract. The grouped split builder has now generated the pinned tracked
 manifest, and its independent source-leakage and artifact-integrity gate passed.
-Complete training orchestration, per-item restart-safe stage storage,
-perturbation generation, metrics and reporting still need to be extracted. The
-real bounded image cache and its offline integrity/no-test-contact audit passed.
-The two-step tiny-LoRA training/resume/reload gate is implemented and awaits its
-Colab T4 PASS. The restart-safe 20-item development run follows that evidence.
+Research-scale training orchestration and the paper metrics/reporting suite
+still need to be extracted. The real bounded image cache and its offline
+integrity/no-test-contact audit passed.
+The two-step tiny-LoRA training/resume/reload gate passed on the reference
+Colab T4. The restart-safe 20-item development runner is implemented and is now
+the next Colab T4 execution gate.
 The base-model contract validates plumbing; an immutable Study adapter smoke
 follows after research training.

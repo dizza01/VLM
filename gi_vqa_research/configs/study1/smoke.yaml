@@ -61,6 +61,22 @@ attribution:
     activation_combination: weighted_sum
     relu: true
 
+perturbation:
+  patch_fractions:
+    - 0.25
+  deletion_treatments:
+    - gray
+    - blur
+  insertion_treatments:
+    - blur
+  selection_modes:
+    - most_salient
+    - least_salient
+    - random
+  random_repeats: 1
+  gray_value: 128
+  blur_radius: 12.0
+
 execution:
   stage: smoke
   evaluation_partition: development

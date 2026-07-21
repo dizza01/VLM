@@ -91,6 +91,15 @@ def model_execution_config() -> dict:
             "relu": True,
         },
     }
+    config["perturbation"] = {
+        "patch_fractions": [0.25],
+        "deletion_treatments": ["gray", "blur"],
+        "insertion_treatments": ["blur"],
+        "selection_modes": ["most_salient", "least_salient", "random"],
+        "random_repeats": 1,
+        "gray_value": 128,
+        "blur_radius": 12.0,
+    }
     return config
 
 
@@ -280,6 +289,22 @@ class ConfigTests(unittest.TestCase):
         original = config_sha256(config)
         config["attribution"]["attention"]["layer"] = -2
         self.assertNotEqual(original, config_sha256(config))
+
+    def test_perturbation_contract_rejects_unsafe_or_incomplete_plans(self) -> None:
+        config = model_execution_config()
+        config["perturbation"]["patch_fractions"] = [0.0]
+        with self.assertRaisesRegex(ConfigError, "greater than zero"):
+            validate_config(config)
+
+        config = model_execution_config()
+        config["perturbation"]["selection_modes"] = ["most_salient"]
+        with self.assertRaisesRegex(ConfigError, "most_salient and random"):
+            validate_config(config)
+
+        config = model_execution_config()
+        config["perturbation"]["deletion_treatments"] = ["inpaint"]
+        with self.assertRaisesRegex(ConfigError, "unsupported perturbation"):
+            validate_config(config)
 
 
 if __name__ == "__main__":

@@ -23,6 +23,10 @@ runs/*
 !runs/README.md
 contract_bundle/
 contract_bundle.zip
+training_gate_bundle*/
+training_gate_bundle*.zip
+development_smoke_bundle*/
+development_smoke_bundle*.zip
 checkpoints/
 predictions/
 attributions/

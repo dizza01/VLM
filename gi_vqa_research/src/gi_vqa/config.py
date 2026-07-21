@@ -84,6 +84,21 @@ GRAD_CAM_FIELDS = {
     "activation_combination",
     "relu",
 }
+PERTURBATION_FIELDS = {
+    "patch_fractions",
+    "deletion_treatments",
+    "insertion_treatments",
+    "selection_modes",
+    "random_repeats",
+    "gray_value",
+    "blur_radius",
+}
+PERTURBATION_TREATMENTS = {"gray", "blur"}
+PERTURBATION_SELECTION_MODES = {
+    "most_salient",
+    "least_salient",
+    "random",
+}
 ATTRIBUTION_METHODS = {
     "decoder_answer_to_image_attention",
     "answer_conditioned_grad_cam",
@@ -373,10 +388,101 @@ def _validate_optional_execution_sections(config: Mapping[str, Any]) -> None:
                 "decoder answer-to-image attention requires model.attn_implementation eager"
             )
 
+    if "perturbation" in config:
+        perturbation = _require_mapping(
+            config["perturbation"],
+            "perturbation",
+        )
+        _reject_unknown_fields(
+            perturbation,
+            PERTURBATION_FIELDS,
+            "perturbation",
+        )
+        fractions = perturbation.get("patch_fractions")
+        if not isinstance(fractions, list) or not fractions:
+            raise ConfigError(
+                "perturbation.patch_fractions must be a non-empty list"
+            )
+        for index, fraction in enumerate(fractions):
+            value = _require_nonnegative_number(
+                fraction,
+                f"perturbation.patch_fractions[{index}]",
+                strictly_positive=True,
+            )
+            if value > 1:
+                raise ConfigError(
+                    "perturbation.patch_fractions values must not exceed 1"
+                )
+        if len({float(value) for value in fractions}) != len(fractions):
+            raise ConfigError(
+                "perturbation.patch_fractions must not contain duplicates"
+            )
+        for field in ("deletion_treatments", "insertion_treatments"):
+            values = perturbation.get(field)
+            if not isinstance(values, list) or not values:
+                raise ConfigError(f"perturbation.{field} must be a non-empty list")
+            if any(not isinstance(value, str) for value in values):
+                raise ConfigError(f"perturbation.{field} must contain strings")
+            if len(set(values)) != len(values):
+                raise ConfigError(
+                    f"perturbation.{field} must not contain duplicates"
+                )
+            unknown = set(values) - PERTURBATION_TREATMENTS
+            if unknown:
+                raise ConfigError(
+                    f"unsupported perturbation treatments: {sorted(unknown)}"
+                )
+        modes = perturbation.get("selection_modes")
+        if not isinstance(modes, list) or not modes:
+            raise ConfigError(
+                "perturbation.selection_modes must be a non-empty list"
+            )
+        if any(not isinstance(mode, str) for mode in modes):
+            raise ConfigError(
+                "perturbation.selection_modes must contain strings"
+            )
+        if len(set(modes)) != len(modes):
+            raise ConfigError(
+                "perturbation.selection_modes must not contain duplicates"
+            )
+        unknown_modes = set(modes) - PERTURBATION_SELECTION_MODES
+        if unknown_modes:
+            raise ConfigError(
+                "unsupported perturbation selection modes: "
+                f"{sorted(unknown_modes)}"
+            )
+        if "most_salient" not in modes or "random" not in modes:
+            raise ConfigError(
+                "perturbation.selection_modes must include most_salient and random"
+            )
+        _require_int_range(
+            perturbation.get("random_repeats"),
+            "perturbation.random_repeats",
+            minimum=1,
+        )
+        _require_int_range(
+            perturbation.get("gray_value"),
+            "perturbation.gray_value",
+            minimum=0,
+            maximum=255,
+        )
+        _require_nonnegative_number(
+            perturbation.get("blur_radius"),
+            "perturbation.blur_radius",
+            strictly_positive=True,
+        )
+
 
 def _require_model_execution_contract(config: Mapping[str, Any]) -> None:
     missing_sections = [
-        name for name in ("generation", "target_scoring", "attribution") if name not in config
+        name
+        for name in (
+            "generation",
+            "target_scoring",
+            "attribution",
+            "perturbation",
+        )
+        if name not in config
     ]
     if missing_sections:
         raise ConfigError(f"model execution configuration is missing sections: {missing_sections}")

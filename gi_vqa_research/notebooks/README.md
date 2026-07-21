@@ -17,6 +17,8 @@ Recommended notebooks:
   gate;
 - `01_colab_t4_training_gate.ipynb` — executable two-step tiny-LoRA checkpoint,
   resume and adapter-reload gate;
+- `02_colab_t4_development_smoke.ipynb` — restart-safe 20-item base-model
+  inference, attribution and perturbation gate;
 - `01_data_audit.ipynb`
 - `02_pilot_inspection.ipynb`
 - `03_results_report.ipynb`
@@ -62,9 +64,10 @@ evidence, not a research result.
 
 A PASS establishes only that the shared backend works in the pinned reference
 environment. The fixed item is excluded from research results and is reserved
-by the tracked grouped split manifest. The grouped split and artifact-integrity
-audit has now passed; image caching and the restart-safe 20-item development
-runner are the next gate.
+by the tracked grouped split manifest. The grouped split, artifact-integrity,
+and bounded image-cache gates have passed. The tiny-LoRA training gate described
+below has also passed; the implemented restart-safe 20-item development runner
+is the next execution gate.
 
 ## Run the Colab T4 training gate
 
@@ -88,6 +91,28 @@ that the adapter changed, and independently reloads it for a finite-loss
 forward pass. It downloads a compact evidence bundle containing reports, logs,
 the exact training subset and hashes—not the disposable adapter weights.
 
-A PASS authorises implementation of the restart-safe 20-item development
+That PASS authorised the now-implemented restart-safe 20-item development
 inference/explanation runner. It is not a trained research model and must never
-be reported as an experimental result.
+be reported as an experimental result. The reference run passed all 15 checks
+at commit `da94b251c0f49d4fa74e4351c3487f5ce3286ade`; see
+`../protocols/study1/training_gate_pass.json` for the compact evidence receipt.
+
+## Run the restart-safe Colab T4 development smoke
+
+After committing and pushing the implementation, open
+`02_colab_t4_development_smoke.ipynb` through Colab's GitHub integration. Use
+runtime version `2025.07`, a T4 GPU and the `HF_TOKEN` secret. Paste the exact
+40-character commit and run all cells.
+
+The notebook deliberately invokes the package twice against one run directory.
+The first process is capped at one new item and must return `INCOMPLETE`. The
+second resumes and must report exactly one reused item and 19 new items. The
+runner never overwrites completed stage artifacts: each item is complete only
+after its prediction, two attribution archives and two perturbation result files
+have been hashed into `complete.json`.
+
+A PASS also requires a validated 20-row merge, finite scores for every configured
+intervention and an immutable diagnostic report. The bundle contains the run
+manifest, compact JSON/JSONL/NPZ artifacts, bootstrap evidence and dependency
+lock—not model weights or cached source images. This development-only run checks
+the entire execution path; it is explicitly excluded from research results.

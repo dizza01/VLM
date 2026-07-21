@@ -10,12 +10,12 @@ small, testable stages. This prevents a large rewrite from changing the scientif
 | Split audit and leakage hard gates | `gi_vqa.splits`, `gi_vqa.audit` | Built from pinned metadata; independent gate passed |
 | Protocol lock | `protocols/study1/` | Tracked destination created |
 | Shared PaliGemma model contract | `gi_vqa.model_spec`, `gi_vqa.backends`, `gi_vqa.contract` | Implemented; Colab T4 contract v2 passed |
-| Training | `gi_vqa.training`, `gi_vqa.training_gate` | Corrected template plus tiny-LoRA save/resume/reload gate implemented; T4 run pending |
-| Deterministic inference and controls | `gi_vqa.infer` | Backend implemented; resumable stage pending |
+| Training | `gi_vqa.training`, `gi_vqa.training_gate` | Corrected template plus tiny-LoRA save/resume/reload gate implemented; T4 gate passed |
+| Deterministic inference and controls | `gi_vqa.smoke_runner` | Restart-safe 20-item development runner implemented; T4 run pending |
 | Answer metrics and stratification | `gi_vqa.metrics` | Planned extraction |
 | Calibration | `gi_vqa.calibration` | Planned extraction |
-| Attention and Grad-CAM | `gi_vqa.attribution` | Backend methods implemented; CUDA and artifact-stage validation pending |
-| Deletion/insertion interventions | `gi_vqa.perturbation` | Planned as resumable shards |
+| Attention and Grad-CAM | `gi_vqa.backends`, `gi_vqa.smoke_runner` | Per-item atomic attribution archives implemented; 20-item CUDA validation pending |
+| Deletion/insertion interventions | `gi_vqa.perturbations`, `gi_vqa.smoke_runner` | Deterministic controls and fixed-answer scoring implemented; 20-item CUDA validation pending |
 | Bootstrap intervals and reporting | `gi_vqa.statistics`, results notebook | Planned extraction |
 | GCP job execution | `infra/gcp/` | Conservative scaffold implemented |
 
@@ -63,8 +63,11 @@ The tracked manifest records 126,064 training, 16,477 development and 16,297
 test items across mutually disjoint source-image groups. The builder reserved
 the contract fixture and selected the fixed 20-item development smoke set.
 The locked 20-development/20-training image cache and offline audit passed.
-The two-step tiny-LoRA checkpoint/resume/reload gate is implemented and must
-pass on the reference Colab T4. The per-item restart-safe stages follow.
+The two-step tiny-LoRA checkpoint/resume/reload gate passed all 15 checks on
+the reference Colab T4 at commit
+`da94b251c0f49d4fa74e4351c3487f5ce3286ade`; the tracked compact receipt is
+`protocols/study1/training_gate_pass.json`. The per-item restart-safe stages are
+implemented and await the locked T4 development smoke.
 
 All extracted PaliGemma training must run through:
 
@@ -76,7 +79,7 @@ This wrapper forces `gi_vqa_paligemma_v1` through ms-swift's external-plugin
 mechanism. Do not substitute raw `swift sft`, whose pinned built-in PaliGemma
 template produces the token-type boundary defect detected by contract v1.
 
-The next useful milestone is a complete 20-item development run:
+The next useful milestone is executing the complete 20-item development run:
 
 ```text
 prepare data

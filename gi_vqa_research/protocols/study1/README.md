@@ -9,6 +9,7 @@ reviewable artifacts that define a paper experiment:
 - `backend_contract.md` (backend boundary and CUDA acceptance criteria)
 - `backend_contract_pass.json` (compact receipt for the retained evidence bundle)
 - `smoke_training_image_cache_manifest.json` (locked image bytes for the next gate)
+- `training_gate_pass.json` (compact receipt for the retained tiny-LoRA evidence bundle)
 
 Do not place images, predictions, checkpoints, saliency arrays or secrets here. Those belong in
 the ignored local `runs/` tree and the durable GCS run prefix.
@@ -30,7 +31,13 @@ reserved, and all nine reconstructable artifacts match their recorded hashes.
 The image cache gate materialises only the 20 development smoke source images
 and 20 deterministic training source images. Its tracked manifest locks encoded
 and decoded-RGB hashes without committing the JPEGs themselves. The real pinned
-40-image cache and its offline integrity/no-test-contact audit passed. The next
-implementation gate is the now-implemented two-step tiny-LoRA
-checkpoint/resume/reload check on Colab T4. Its PASS evidence must be retained
-before the restart-safe 20-item development smoke run.
+40-image cache and its offline integrity/no-test-contact audit passed.
+
+The two-process tiny-LoRA gate passed all 15 checks on the reference Colab T4
+at Git commit `da94b251c0f49d4fa74e4351c3487f5ce3286ade`. It proved complete
+step-1 and step-2 checkpoints, explicit resume from step 1, changed adapter
+weights after the resumed step, and independent PEFT reload with finite loss.
+The compact tracked receipt preserves the evidence hashes and the observed
+diagnostic caveats. The resulting restart-safe 20-item development runner is
+now implemented. Its next T4 run must be retained as a separate evidence bundle;
+it is not a research model or research result.
