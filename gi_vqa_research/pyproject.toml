@@ -47,6 +47,7 @@ dev = [
 gi-vqa = "gi_vqa.cli:main"
 gi-vqa-smoke = "gi_vqa.smoke_runner:main"
 gi-vqa-train = "gi_vqa.training:main"
+gi-vqa-controlled-training = "gi_vqa.controlled_training_runner:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

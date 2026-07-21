@@ -1,0 +1,93 @@
+{
+  "arms": [
+    {
+      "condition": "paired_image",
+      "description": "Each question is paired with its leakage-safe source GI image."
+    },
+    {
+      "condition": "constant_image",
+      "description": "Every question is paired with the same neutral RGB image; this is the trained question-prior control."
+    }
+  ],
+  "data": {
+    "condition_order": [
+      "paired_image",
+      "constant_image"
+    ],
+    "constant_image": {
+      "height": 224,
+      "rgb": [
+        128,
+        128,
+        128
+      ],
+      "width": 224
+    },
+    "partition": "train",
+    "record_order": "condition-identical source-selection order followed by per-source record-selection order",
+    "records_per_source": 4,
+    "selection_algorithm": "sha256-controlled-pilot-source-and-record-selection-v1",
+    "source_images": 256
+  },
+  "diagnostic_only": true,
+  "evaluation_after_training": {
+    "first_gate": "Run each final adapter on the locked 20-item development smoke with paired images.",
+    "minimum_conditions": [
+      "unadapted_paired_image",
+      "paired_image_adapter",
+      "constant_image_adapter"
+    ],
+    "test_partition_access": false
+  },
+  "excluded_from_research_results": true,
+  "model": {
+    "base_model": "google/paligemma-3b-pt-224",
+    "base_model_revision": "35e4f46485b4d07967e7e9935bc3786aad50687c",
+    "freeze_aligner": true,
+    "freeze_vision_tower": true,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "lora_rank": 16,
+    "lora_target_modules": "all-linear language-model projections",
+    "quantization": "bnb-nf4-4bit",
+    "trainable_component": "language-model LoRA adapter"
+  },
+  "optimisation": {
+    "data_seed": 42,
+    "dataloader_workers": 0,
+    "effective_batch_size": 4,
+    "gradient_accumulation_steps": 4,
+    "gradient_checkpointing": true,
+    "learning_rate": 0.00002,
+    "logging_steps": 8,
+    "lr_scheduler": "constant",
+    "max_grad_norm": 1.0,
+    "max_length": 384,
+    "optimizer": "adamw_torch",
+    "per_device_train_batch_size": 1,
+    "phase_one_steps": 128,
+    "phase_two_total_steps": 256,
+    "save_steps": 128,
+    "seed": 42,
+    "warmup_ratio": 0.0,
+    "weight_decay": 0.0
+  },
+  "pilot_id": "study1-controlled-adaptation-pilot-v1",
+  "purpose": "Test whether otherwise identical adaptation depends on paired visual evidence rather than only question and answer priors before scaling Study 1 training.",
+  "required_pass_receipts": {
+    "backend_contract_pass.json": "ebac9ea0b48386ac7ca7c39ee8a84498d6b2c452aebfbba969905045ad5238c3",
+    "development_smoke_pass.json": "5374942792102937e2d5076415948c7b5cc18ce7de86c7fdcf8990e36dbd3a08",
+    "training_gate_pass.json": "ba195792f86b985ee325095225e1ab7bdfe7ab2f562009bc2a5624472daa344f"
+  },
+  "schema_version": "gi-vqa-controlled-training-pilot-v1",
+  "split_manifest_sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885",
+  "status": "LOCKED",
+  "success_criteria": [
+    "Both arms use exactly the same ordered item IDs, questions, answers, optimiser settings and random seeds.",
+    "The paired arm uses only its correct grouped-training source image; the constant arm uses one identical neutral image for every record.",
+    "Neither training arm nor preparation code reads development or test records.",
+    "Each arm saves a complete checkpoint at step 128 and explicitly resumes it to step 256.",
+    "Each resumed adapter differs from its step-128 adapter and independently reloads with finite loss.",
+    "The final adapter bytes, prepared-dataset manifests, logs and run report are content-hashed."
+  ]
+}

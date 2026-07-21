@@ -27,6 +27,8 @@ training_gate_bundle*/
 training_gate_bundle*.zip
 development_smoke_bundle*/
 development_smoke_bundle*.zip
+controlled_training_bundle*/
+controlled_training_bundle*.zip
 checkpoints/
 predictions/
 attributions/

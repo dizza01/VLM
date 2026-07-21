@@ -1,0 +1,96 @@
+{
+  "artifact_hashes": {
+    "backend_identity": "b6327ea66ec46442ab9b799ceac3fd08e81f065039f0a8abfbafc9d0e7895655",
+    "bootstrap_environment": "71ad41e7a8b9f32b3657e978006fae3c57d28040a529944a9d0c737ee494c19b",
+    "first_invocation_status": "3d06e8f0d4471e3a41daefc71e70b15ebe48245b5fe3042fee785b9c0bee8b9d",
+    "merged_results": "272b4d15637a695a9d258e3fa9a3677f4fd859400a2f70b46bb8cd256e9ed218",
+    "run_manifest": "60767dbda6541906efeddee01b3fda59a1471fa22231dc553262dc648e68107f",
+    "smoke_report": "25e65373af4da6717bf0c2857dcba9beef6709a4593839299ae9cb714455e249",
+    "status": "94eb524fcf4b1025b4685c79071c0d5cc3f25609af26ecdcbf7cb190918f888d"
+  },
+  "attributions": {
+    "archives": 40,
+    "finite_non_degenerate_normalized": true,
+    "methods": [
+      "decoder_answer_to_image_attention",
+      "answer_conditioned_grad_cam"
+    ],
+    "patch_grid_shape": [
+      16,
+      16
+    ]
+  },
+  "audit_notes": [
+    "All 134 files listed by the downloaded bundle manifest independently matched their SHA-256 digests.",
+    "The global Colab pip check reported only unrelated preinstalled ipython/jedi and gcsfs/fsspec conflicts; the scoped GI-VQA dependency audit found zero conflicts.",
+    "Colab emitted non-fatal TensorFlow duplicate CUDA factory and default ForCausalLMLoss warnings. The PyTorch PaliGemma stages completed and every required artifact passed the runner and independent bundle audits.",
+    "Normalized exact match was 0/20 for the unfine-tuned PaliGemma pretraining checkpoint. This is expected to motivate controlled adaptation and is not a smoke-gate failure; the run is diagnostic infrastructure evidence and is excluded from research results.",
+    "The maximum fp16 generation/teacher-forcing log-probability difference was 0.0161834955 against the locked 0.02 bound. Exact target-token identity remained mandatory for every item."
+  ],
+  "backend": {
+    "attention_implementation": "eager",
+    "device": "cuda:0",
+    "model_id": "google/paligemma-3b-pt-224",
+    "model_revision": "35e4f46485b4d07967e7e9935bc3786aad50687c",
+    "model_spec_sha256": "c9891c8b93522fafecd69f4aff8e556953dc2a116d3fefe8b422d180f90b2d82",
+    "torch_dtype": "float16"
+  },
+  "bundle_manifest": {
+    "all_members_verified": true,
+    "member_count": 134,
+    "sha256": "42b756436fd30f2010aedf0e96f4191f4c7b9d26c823f388fbc2029c7637a044"
+  },
+  "configuration_canonical_sha256": "2bbc739e1a7f81863acbde12fe09d5e19c4ae4c90acd9a925b6ba13fae6fe83a",
+  "configuration_file_sha256": "79275ff4647dad151900cbb0b43d3303086267cc3394045d3f2436292b9e266a",
+  "diagnostic_only": true,
+  "environment": {
+    "gpu": "Tesla T4",
+    "python": "3.11.13",
+    "torch": "2.6.0+cu124",
+    "transformers": "4.55.0"
+  },
+  "excluded_from_research_results": true,
+  "input_hashes": {
+    "image_cache_manifest": "d07f870362cd977465dc6afeae1d3a427c9a595af8bbdf1e721ea1d7142f6a7c",
+    "smoke_records": "d980175fb24c3d1d4b6b2ebfb306c0c40f9ddccfa2f0ec3141cd3e65dbf09692",
+    "split_manifest": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885"
+  },
+  "metrics": {
+    "finite_intervention_scores": true,
+    "generation_teacher_forcing_score_parity": {
+      "absolute_tolerance": 0.02,
+      "maximum_absolute_difference": 0.01618349552154541,
+      "mean_item_maximum_absolute_difference": 0.005581411719322205
+    },
+    "intervention_scores": 360,
+    "items": 20,
+    "mean_fixed_answer_logprob": -0.8980465670271467,
+    "mean_sequence_confidence": 0.4775188910593311,
+    "normalized_exact_match": 0.0
+  },
+  "perturbations": {
+    "files": 40,
+    "interventions_per_item": 18,
+    "scores": 360
+  },
+  "repository_commit": "c7c44d86d439a31018062537b2dddc03788aaf01",
+  "restart_evidence": {
+    "first_invocation": {
+      "completed_items": 1,
+      "new_items": 1,
+      "remaining_items": 19,
+      "reused_items": 0,
+      "status": "INCOMPLETE",
+      "updated_at_utc": "2026-07-21T16:10:07.747379+00:00"
+    },
+    "resume_invocation": {
+      "completed_items": 20,
+      "new_items": 19,
+      "reused_items": 1,
+      "status": "PASS",
+      "updated_at_utc": "2026-07-21T16:13:11.452674+00:00"
+    }
+  },
+  "schema_version": "gi-vqa-development-smoke-pass-receipt-v1",
+  "status": "PASS"
+}

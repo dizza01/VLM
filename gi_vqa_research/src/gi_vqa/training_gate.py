@@ -391,13 +391,22 @@ def inspect_training_checkpoint(
 def verify_checkpoint_resume(
     phase_one: Mapping[str, Any],
     phase_two: Mapping[str, Any],
+    *,
+    expected_first_step: int = 1,
+    expected_second_step: int = 2,
 ) -> dict[str, Any]:
     """Prove that phase 2 continued and changed the saved adapter."""
 
-    if phase_one.get("global_step") != 1:
-        raise TrainingGateFailure("phase 1 did not finish at global step 1")
-    if phase_two.get("global_step") != 2:
-        raise TrainingGateFailure("phase 2 did not finish at global step 2")
+    if expected_first_step < 1 or expected_second_step <= expected_first_step:
+        raise TrainingGateFailure("checkpoint resume step boundaries are invalid")
+    if phase_one.get("global_step") != expected_first_step:
+        raise TrainingGateFailure(
+            f"phase 1 did not finish at global step {expected_first_step}"
+        )
+    if phase_two.get("global_step") != expected_second_step:
+        raise TrainingGateFailure(
+            f"phase 2 did not finish at global step {expected_second_step}"
+        )
     first_hash = phase_one["files"]["adapter_weights"]["sha256"]
     second_hash = phase_two["files"]["adapter_weights"]["sha256"]
     if first_hash == second_hash:
@@ -408,8 +417,8 @@ def verify_checkpoint_resume(
     if not second_losses:
         raise TrainingGateFailure("resumed phase has no finite training loss")
     return {
-        "resumed_from_global_step": 1,
-        "finished_global_step": 2,
+        "resumed_from_global_step": expected_first_step,
+        "finished_global_step": expected_second_step,
         "adapter_changed_after_resume": True,
         "phase_one_adapter_sha256": first_hash,
         "phase_two_adapter_sha256": second_hash,
@@ -619,7 +628,7 @@ def run_training_gate(
         )
 
         reload_log = artifacts / "adapter_reload.log"
-        reload_probe = _adapter_reload_probe(
+        reload_probe = adapter_reload_probe(
             config=config,
             checkpoint=checkpoint_two,
             subset_path=subset_path,
@@ -670,7 +679,7 @@ def run_training_gate(
     return report
 
 
-def _adapter_reload_probe(
+def adapter_reload_probe(
     *,
     config: Mapping[str, Any],
     checkpoint: Path,
@@ -954,7 +963,7 @@ def _finite_training_losses(value: Any) -> list[dict[str, float | int]]:
             continue
         loss = entry["loss"]
         if (
-            isinstance(loss, (int, float))
+            isinstance(loss, int | float)
             and not isinstance(loss, bool)
             and math.isfinite(float(loss))
         ):

@@ -10,6 +10,10 @@ reviewable artifacts that define a paper experiment:
 - `backend_contract_pass.json` (compact receipt for the retained evidence bundle)
 - `smoke_training_image_cache_manifest.json` (locked image bytes for the next gate)
 - `training_gate_pass.json` (compact receipt for the retained tiny-LoRA evidence bundle)
+- `development_smoke_pass.json` (compact receipt for the retained restart-safe
+  20-item development evidence bundle)
+- `controlled_training_pilot.json` (locked diagnostic paired-image versus
+  constant-image adaptation design)
 
 Do not place images, predictions, checkpoints, saliency arrays or secrets here. Those belong in
 the ignored local `runs/` tree and the durable GCS run prefix.
@@ -52,3 +56,23 @@ token identity remains mandatory, while cached generation and full
 teacher-forcing may differ by at most approximately a 2% probability ratio.
 Configuration validation rejects any larger tolerance. This was a numerical
 acceptance-threshold correction, not a model or data change.
+
+The revised development smoke passed at Git commit
+`c7c44d86d439a31018062537b2dddc03788aaf01`. All 20 items completed; the
+second process reused the first process's completed item and executed the
+remaining 19. Both attribution methods produced finite non-degenerate 16 by 16
+maps, all 360 intervention scores were finite, and the validated 20-row shard
+merge matched its output hash. The maximum generation/teacher-forcing
+log-probability difference was `0.0161834955` against the locked `0.02` bound.
+See `development_smoke_pass.json` for the compact evidence receipt. This PASS
+authorises design of the first controlled training experiment, not use of these
+diagnostic predictions as research results.
+
+That first design is now locked in `controlled_training_pilot.json`. It requires
+all three prior PASS receipts by exact hash, selects 256 train-only source-image
+groups and four records per group, and holds every training choice constant
+between a correctly paired image arm and a neutral constant-image arm. Each arm
+must save at step 128, explicitly resume to step 256, change its adapter bytes
+and independently reload with finite loss. The pilot is deliberately marked
+diagnostic-only and excluded from research results; its first T4 execution has
+not yet been accepted.

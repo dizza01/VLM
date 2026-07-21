@@ -167,6 +167,10 @@ The first migration slice is executable:
 - a locked, restart-safe 20-item development runner that atomically stores
   predictions, both attribution maps, deletion/insertion controls and
   fixed-answer scores before validating its shard merge and diagnostic report;
+- a locked, restart-safe controlled QLoRA pilot that prepares 1,024 matched
+  training records per arm, compares correct paired images with a trained
+  constant-image question-prior control, resumes complete step-128 checkpoints
+  to step 256, reload-probes both adapters and packages their exact bytes;
 - deterministic patch interventions covering most-salient, least-salient and
   seeded-random regions with gray/blur deletion and blur insertion baselines;
 - strict shared-backend smoke configuration validation;
@@ -220,10 +224,25 @@ process. A PASS requires 20/20 completed development items, one reused item,
 and a compact evidence bundle. This is still diagnostic infrastructure evidence,
 not a paper result.
 
+The reference T4 development smoke passed at commit
+`c7c44d86d439a31018062537b2dddc03788aaf01`: 20/20 items, one verified reused
+item, 19 resumed items, 40 finite non-degenerate attribution maps and 360 finite
+intervention scores. Its compact receipt is
+`protocols/study1/development_smoke_pass.json`.
+
+The next gate is the diagnostic controlled-adaptation pilot launched from
+`notebooks/03_colab_t4_controlled_training_pilot.ipynb`. Its immutable design is
+`protocols/study1/controlled_training_pilot.json`: 256 training source images,
+four questions per source, and two otherwise identical rank-16 QLoRA arms. One
+arm sees the correct source image and the other sees one neutral RGB image. Both
+arms save at step 128 and explicitly resume to step 256. No development or test
+records are read during preparation or training.
+
 The equivalent command on a compatible GPU host is:
 
 ```bash
 make development-smoke EXPECTED_COMMIT=<full-40-character-commit>
+make controlled-training EXPECTED_COMMIT=<full-40-character-commit>
 ```
 
 See [`MIGRATION.md`](MIGRATION.md) for the mapping from the existing Study 1
@@ -235,11 +254,14 @@ This scaffold does not yet run the experiment end to end. The shared PaliGemma
 backend and corrected training-template boundary passed the revised Colab T4
 contract. The grouped split builder has now generated the pinned tracked
 manifest, and its independent source-leakage and artifact-integrity gate passed.
-Research-scale training orchestration and the paper metrics/reporting suite
+Confirmatory research-scale training and the paper metrics/reporting suite
 still need to be extracted. The real bounded image cache and its offline
 integrity/no-test-contact audit passed.
 The two-step tiny-LoRA training/resume/reload gate passed on the reference
-Colab T4. The restart-safe 20-item development runner is implemented and is now
-the next Colab T4 execution gate.
+Colab T4. The restart-safe 20-item development runner has also passed its T4
+execution gate. The first bounded controlled training pilot is implemented but
+has not yet passed its T4 execution gate. It remains diagnostic and excluded
+from research results until its design is expanded into a preregistered paper
+experiment.
 The base-model contract validates plumbing; an immutable Study adapter smoke
 follows after research training.

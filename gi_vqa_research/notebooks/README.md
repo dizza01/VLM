@@ -19,6 +19,8 @@ Recommended notebooks:
   resume and adapter-reload gate;
 - `02_colab_t4_development_smoke.ipynb` — restart-safe 20-item base-model
   inference, attribution and perturbation gate;
+- `03_colab_t4_controlled_training_pilot.ipynb` — restart-safe paired-image
+  versus constant-image QLoRA pilot;
 - `01_data_audit.ipynb`
 - `02_pilot_inspection.ipynb`
 - `03_results_report.ipynb`
@@ -121,3 +123,43 @@ The fp16 parity check requires exact generated/teacher-forced target token IDs
 and limits their maximum per-token log-probability difference to `0.02`. This
 bound accommodates the distinct cached-generation and full-sequence execution
 paths while limiting their implied probability ratio to approximately 2%.
+
+The reference development smoke passed at commit
+`c7c44d86d439a31018062537b2dddc03788aaf01`. Its resume invocation completed
+19 new items while reusing the first invocation's completed item; all 40
+attribution maps and 360 intervention scores passed validation. See
+`../protocols/study1/development_smoke_pass.json`. The next gate is the first
+controlled research training experiment.
+
+## Run the controlled QLoRA pilot
+
+After committing and pushing the implementation, open
+`03_colab_t4_controlled_training_pilot.ipynb` through Colab's GitHub
+integration. Use runtime version `2025.07`, a T4 GPU and the `HF_TOKEN` secret.
+Paste the exact commit and run all cells.
+
+The runner reconstructs the leakage-safe grouped training split and
+deterministically selects 256 training source images with four records each.
+It builds two 1,024-row datasets with identical ordered item IDs, questions and
+answers. `paired_image` uses each correct GI image; `constant_image` replaces
+all images with the same neutral 224 by 224 RGB image. Both arms use identical
+rank-16 QLoRA settings, save a complete checkpoint at step 128 and explicitly
+resume to step 256.
+
+The notebook invokes:
+
+```bash
+python -m gi_vqa.controlled_training_runner
+```
+
+Keep `RESET_RUN = False` if a phase was interrupted while the same Colab VM is
+still available. The runner retains failed attempts, reuses only structurally
+complete checkpoints, and binds the work directory to the exact Git commit,
+protocol, split and prepared-data hashes. Its bundle contains logs, manifests
+and both final adapters, so it is substantially larger than the earlier gate
+bundles. It contains no source images or secrets.
+
+A PASS is still a development diagnostic, not a paper result. The following
+gate evaluates the unadapted base, paired-image adapter and constant-image
+adapter on the locked 20-item development set before any larger run or test-set
+access.

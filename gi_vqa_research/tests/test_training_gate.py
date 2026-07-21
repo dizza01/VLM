@@ -225,6 +225,26 @@ class TrainingGateTests(unittest.TestCase):
             ):
                 verify_checkpoint_resume(first, second)
 
+    def test_checkpoint_resume_supports_locked_larger_boundaries(self) -> None:
+        first = {
+            "global_step": 128,
+            "finite_training_losses": [{"step": 128, "loss": 2.0}],
+            "files": {"adapter_weights": {"sha256": "first"}},
+        }
+        second = {
+            "global_step": 256,
+            "finite_training_losses": [{"step": 256, "loss": 1.0}],
+            "files": {"adapter_weights": {"sha256": "second"}},
+        }
+        result = verify_checkpoint_resume(
+            first,
+            second,
+            expected_first_step=128,
+            expected_second_step=256,
+        )
+        self.assertEqual(result["resumed_from_global_step"], 128)
+        self.assertEqual(result["finished_global_step"], 256)
+
     def test_checkpoint_accepts_peft_regex_target_modules(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
