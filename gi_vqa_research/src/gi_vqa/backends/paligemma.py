@@ -206,10 +206,9 @@ class PaliGemmaBackend:
             **model_kwargs,
         )
         if self.spec.is_adapted:
-            adapter_kwargs: dict[str, Any] = {
-                "is_trainable": False,
-                "revision": self.spec.adapter_revision,
-            }
+            adapter_kwargs: dict[str, Any] = {"is_trainable": False}
+            if not Path(self.spec.adapter_id).is_dir():
+                adapter_kwargs["revision"] = self.spec.adapter_revision
             model = peft.PeftModel.from_pretrained(
                 model,
                 self.spec.adapter_id,
@@ -899,7 +898,15 @@ class PaliGemmaBackend:
                 "could not resolve the active PEFT adapter configuration"
             )
         declared_base = getattr(adapter_config, "base_model_name_or_path", None)
-        if declared_base and str(declared_base).rstrip("/") != self.spec.base_model_id.rstrip("/"):
+        declared_base_matches = not declared_base or (
+            str(declared_base).rstrip("/") == self.spec.base_model_id.rstrip("/")
+            or (
+                Path(str(declared_base)).name == self.spec.base_model_revision
+                and "models--google--paligemma-3b-pt-224"
+                in Path(str(declared_base)).parts
+            )
+        )
+        if not declared_base_matches:
             raise BackendCompatibilityError(
                 "adapter declares a different base model: "
                 f"{declared_base!r} != {self.spec.base_model_id!r}"

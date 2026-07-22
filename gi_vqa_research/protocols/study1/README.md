@@ -14,6 +14,10 @@ reviewable artifacts that define a paper experiment:
   20-item development evidence bundle)
 - `controlled_training_pilot.json` (locked diagnostic paired-image versus
   constant-image adaptation design)
+- `controlled_training_pass.json` (compact receipt for the retained controlled
+  training evidence bundle)
+- `controlled_evaluation_pilot.json` (locked three-condition development-only
+  evaluation design)
 
 Do not place images, predictions, checkpoints, saliency arrays or secrets here. Those belong in
 the ignored local `runs/` tree and the durable GCS run prefix.
@@ -74,5 +78,8 @@ groups and four records per group, and holds every training choice constant
 between a correctly paired image arm and a neutral constant-image arm. Each arm
 must save at step 128, explicitly resume to step 256, change its adapter bytes
 and independently reload with finite loss. The pilot is deliberately marked
-diagnostic-only and excluded from research results; its first T4 execution has
-not yet been accepted.
+diagnostic-only and excluded from research results. Its first T4 execution
+passed at commit `94578e22db40cf4afc53619ce7757b1c8a730e24`; the compact
+receipt locks the report, bundle manifest and both final adapters. The next gate
+evaluates the unadapted model and both adapters on the same 20 locked
+development items with their correct paired images. It must not access test.

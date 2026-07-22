@@ -1,0 +1,23 @@
+{
+  "conditions": [
+    "unadapted_paired_image",
+    "paired_image_adapter",
+    "constant_image_adapter"
+  ],
+  "controlled_training_pass_sha256": "713f632430270db0ac4b200e52a9493dc628668784e73845e77237b174b0881f",
+  "development_items": 20,
+  "diagnostic_only": true,
+  "evaluation_image_condition": "correct_paired_source_image",
+  "excluded_from_research_results": true,
+  "metrics": [
+    "normalized_exact_match",
+    "mean_sequence_confidence",
+    "mean_generated_token_logprob"
+  ],
+  "pilot_id": "study1-controlled-adaptation-evaluation-v1",
+  "purpose": "Compare the unadapted base model and both controlled-training adapters on the same locked development items before any larger run.",
+  "schema_version": "gi-vqa-controlled-evaluation-pilot-v1",
+  "seed": 42,
+  "status": "LOCKED",
+  "test_partition_access": false
+}

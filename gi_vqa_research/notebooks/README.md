@@ -163,3 +163,18 @@ A PASS is still a development diagnostic, not a paper result. The following
 gate evaluates the unadapted base, paired-image adapter and constant-image
 adapter on the locked 20-item development set before any larger run or test-set
 access.
+
+Run that gate on the same pinned T4 environment after placing the retained
+training bundle at `controlled_training_bundle-4`:
+
+```bash
+python -m gi_vqa.controlled_evaluation_runner \
+  --project-root . \
+  --training-bundle controlled_training_bundle-4 \
+  --run-dir runs/controlled_evaluation_pilot
+```
+
+The runner evaluates the three locked conditions in order, saves one immutable
+completion per item, resumes completed items, verifies both adapter hashes
+against `controlled_training_pass.json`, and writes
+`controlled_evaluation_report.json`. These results remain diagnostic-only.

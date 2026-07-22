@@ -105,6 +105,14 @@ controlled-training:
 		--artifact-dir $(CONTROLLED_ARTIFACT_DIR) \
 		--required-gpu-substring T4
 
+controlled-evaluation:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.controlled_evaluation_runner \
+		--project-root . \
+		--training-bundle controlled_training_bundle-4 \
+		--run-dir runs/controlled_evaluation_pilot \
+		--expected-commit $(EXPECTED_COMMIT) \
+		--require-clean-git
+
 audit:
 	PYTHONPATH=src $(PYTHON) scripts/audit_splits.py $(SPLITS)
 

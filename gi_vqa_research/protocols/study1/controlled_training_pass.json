@@ -1,0 +1,22 @@
+{
+  "adapters": {
+    "constant_image": {
+      "artifact_sha256": "b8ca23d5e6ed1e65182a53b296542e0da960c96103391e0ee9aae8f7d581ac89",
+      "config_sha256": "aa2341272b0ad5c5ba8ea39c74f434d45b1d33517cf19276abc40454f56f33ed",
+      "weights_sha256": "c9648bdf2dd3191f4da918fc07bfea0e4125085f65a2b78129056a1d9059dd71"
+    },
+    "paired_image": {
+      "artifact_sha256": "873e1dc11ba66df6e39c8f53bcf0fb0902f903f9e14b47a69f758bfb7a8884c8",
+      "config_sha256": "aa2341272b0ad5c5ba8ea39c74f434d45b1d33517cf19276abc40454f56f33ed",
+      "weights_sha256": "12f5de16e8874b7f2ef496af75814e83272c70deecf69354c1d2b49cc339ec29"
+    }
+  },
+  "bundle_manifest_sha256": "46cb32dd8c0d5ee0ec931792da817d6163514dcc42afe59a0b124e28ce945b1c",
+  "controlled_training_report_sha256": "62c11c4bd04510a7f0f6d1d99537f9d8358a68add6028b57ccf9f30df38d1a79",
+  "diagnostic_only": true,
+  "excluded_from_research_results": true,
+  "repository_commit": "94578e22db40cf4afc53619ce7757b1c8a730e24",
+  "schema_version": "gi-vqa-controlled-training-pass-v1",
+  "status": "PASS",
+  "test_partition_accessed": false
+}
