@@ -27,7 +27,12 @@ ipykernel
 # Development and utilities
 pathlib-mate
 
-# Optional: For enhanced development experience
+# Study evaluation
+scikit-learn
+nltk
+rouge-score
+sacrebleu
+
+# Optional visualization
 matplotlib
 seaborn
-scikit-learn

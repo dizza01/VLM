@@ -178,7 +178,7 @@ class ControlledTrainingTests(unittest.TestCase):
             self.assertEqual(result["records_per_condition"], 1024)
             self.assertEqual(len(fetch_calls), 256)
             self.assertTrue(
-                all(call[:2] == ("image/repo", "b" * 40) for call in fetch_calls)
+                all(call[:2] == ("metadata/repo", "a" * 40) for call in fetch_calls)
             )
             paired = read_jsonl(output / "paired_image_train.jsonl")
             constant = read_jsonl(output / "constant_image_train.jsonl")

@@ -131,8 +131,8 @@ def prepare_controlled_training_data(
     images_dir = output / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
     dataset = _required_mapping(
-        split_manifest.get("image_dataset"),
-        "split image dataset",
+        split_manifest.get("dataset"),
+        "split artifact dataset",
     )
     dataset_id = _required_string(dataset.get("id"), "dataset ID")
     dataset_revision = _required_string(dataset.get("revision"), "dataset revision")
