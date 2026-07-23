@@ -19,6 +19,7 @@ from .image_cache import materialize_image_cache, verify_image_cache
 from .jsonl import read_jsonl
 from .provenance import canonical_json_sha256, file_fingerprint, file_sha256
 from .splits import materialize_grouped_split_artifacts, verify_grouped_split_artifacts
+from .training_gate import _validate_runtime
 
 EVALUATION_SCHEMA_VERSION = "gi-vqa-controlled-evaluation-report-v1"
 CONDITIONS = (
@@ -47,6 +48,7 @@ def run_controlled_evaluation(
     run_dir: str | Path,
     expected_commit: str | None = None,
     require_clean_git: bool = False,
+    required_gpu_substring: str = "T4",
     materialize_inputs: bool = True,
     backend_factory: BackendFactory | None = None,
 ) -> dict[str, Any]:
@@ -67,6 +69,12 @@ def run_controlled_evaluation(
         raise ControlledEvaluationError("repository commit differs from expected commit")
     if require_clean_git and git["dirty"]:
         raise ControlledEvaluationError("controlled evaluation requires a clean checkout")
+
+    runtime_report: dict[str, Any] = {"checks": {}}
+    _validate_runtime(
+        runtime_report,
+        required_gpu_substring=required_gpu_substring,
+    )
 
     protocol = _read_object(protocol_file)
     receipt = _read_object(receipt_file)
@@ -119,6 +127,8 @@ def run_controlled_evaluation(
         "excluded_from_research_results": True,
         "test_partition_accessed": False,
         "repository": git,
+        "runtime": runtime_report["runtime"],
+        "runtime_checks": runtime_report["checks"],
         "protocol": file_fingerprint(protocol_file),
         "controlled_training_pass": file_fingerprint(receipt_file),
         "input_gates": {"split": split_check, "image_cache": cache_check},
@@ -382,6 +392,7 @@ def _parser():
     parser.add_argument("--run-dir", required=True, type=Path)
     parser.add_argument("--expected-commit")
     parser.add_argument("--require-clean-git", action="store_true")
+    parser.add_argument("--required-gpu-substring", default="T4")
     parser.add_argument("--no-materialize", action="store_true")
     return parser
 
@@ -399,6 +410,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         run_dir=args.run_dir,
         expected_commit=args.expected_commit,
         require_clean_git=args.require_clean_git,
+        required_gpu_substring=args.required_gpu_substring,
         materialize_inputs=not args.no_materialize,
     )
     print(json.dumps(result, indent=2, sort_keys=True))

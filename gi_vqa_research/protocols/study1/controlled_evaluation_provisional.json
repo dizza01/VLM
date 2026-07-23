@@ -1,0 +1,25 @@
+{
+  "conditions": {
+    "constant_image_adapter": {
+      "predictions_sha256": "f01c04b16dfcfceda1823aba127f0949df8fdf45ac4b4536f9129f00cbad180a"
+    },
+    "paired_image_adapter": {
+      "predictions_sha256": "a4a9ac2890385aa1b490fcaf503c89ed11206350a43c59d147028c8b0ad527bc"
+    },
+    "unadapted_paired_image": {
+      "predictions_sha256": "ad6229420b214bc7275652c6eae4cea26970ec0c0af53401224354705bec6884"
+    }
+  },
+  "controlled_evaluation_report_sha256": "3dc099c694d116c1ad27c6ae911cb34d3ce366bc6e4acd0a28c6896deb804a16",
+  "diagnostic_only": true,
+  "environment_caveat": {
+    "expected_transformers": "4.55.0",
+    "observed_transformers": "4.53.2",
+    "requires_pinned_rerun_before_acceptance": true
+  },
+  "excluded_from_research_results": true,
+  "repository_commit": "2e9b3e1f3a9bf8296d5fea03406c7eeb9543b1eb",
+  "schema_version": "gi-vqa-controlled-evaluation-provisional-v1",
+  "status": "PROVISIONAL",
+  "test_partition_accessed": false
+}

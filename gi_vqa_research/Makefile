@@ -92,7 +92,8 @@ development-smoke:
 		--run-dir $(SMOKE_RUN_DIR) \
 		--run-id development-smoke-20 \
 		--expected-commit $(EXPECTED_COMMIT) \
-		--require-clean-git
+		--require-clean-git \
+		--required-gpu-substring T4
 
 controlled-training:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.controlled_training_runner \
