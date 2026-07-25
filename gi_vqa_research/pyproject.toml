@@ -49,6 +49,7 @@ gi-vqa-smoke = "gi_vqa.smoke_runner:main"
 gi-vqa-train = "gi_vqa.training:main"
 gi-vqa-controlled-training = "gi_vqa.controlled_training_runner:main"
 gi-vqa-controlled-evaluation = "gi_vqa.controlled_evaluation_runner:main"
+gi-vqa-larger-development = "gi_vqa.larger_development:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

@@ -18,6 +18,12 @@ reviewable artifacts that define a paper experiment:
   training evidence bundle)
 - `controlled_evaluation_pilot.json` (locked three-condition development-only
   evaluation design)
+- `controlled_evaluation_pass.json` (compact receipt for the pinned-runtime
+  three-condition development evaluation)
+- `larger_development_selection.json` (locked 256-source development-only
+  selection and shuffled-image mapping)
+- `larger_development_protocol.json` (machine-validated larger development
+  preregistration, analysis plan and test-set seal)
 
 Do not place images, predictions, checkpoints, saliency arrays or secrets here. Those belong in
 the ignored local `runs/` tree and the durable GCS run prefix.
@@ -83,3 +89,18 @@ passed at commit `94578e22db40cf4afc53619ce7757b1c8a730e24`; the compact
 receipt locks the report, bundle manifest and both final adapters. The next gate
 evaluates the unadapted model and both adapters on the same 20 locked
 development items with their correct paired images. It must not access test.
+
+The three-condition evaluation passed under the fully pinned T4 runtime at
+commit `7aded20b49aed6f21bf4f9cee7700d3b856fc599`. Its compact receipt locks
+the report and all three prediction files. It remains diagnostic-only and does
+not authorise test access. The larger development preregistration must be
+reviewed and locked before scaling evaluation.
+
+The larger development protocol is now locked. It binds the accepted training
+and evaluation receipts, the grouped split and a deterministic 256-source
+development selection. Its primary endpoint is normalized token F1 for the
+paired adapter versus the constant-image control, with shuffled- and
+neutral-image grounding checks. The machine validator refuses changed inputs,
+non-development selections, incomplete source groups, shuffled fixed points or
+an unlocked test partition. Run `make larger-development-check` before
+implementing or launching the larger runner.

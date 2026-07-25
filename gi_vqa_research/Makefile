@@ -114,6 +114,11 @@ controlled-evaluation:
 		--expected-commit $(EXPECTED_COMMIT) \
 		--require-clean-git
 
+larger-development-check:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.larger_development check \
+		--project-root . \
+		--protocol protocols/study1/larger_development_protocol.json
+
 audit:
 	PYTHONPATH=src $(PYTHON) scripts/audit_splits.py $(SPLITS)
 

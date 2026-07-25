@@ -35,6 +35,7 @@ attributions/
 perturbations/
 logs/
 controlled_evaluation_pilot/
+runs 3/
 
 # Notebook-generated files
 notebooks/generated/
