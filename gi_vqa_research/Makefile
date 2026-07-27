@@ -6,8 +6,10 @@ GATE_ARTIFACT_DIR ?= runs/training-gate-evidence
 SMOKE_RUN_DIR ?= runs/development-smoke-20
 CONTROLLED_WORK_DIR ?= runs/controlled-training-work
 CONTROLLED_ARTIFACT_DIR ?= runs/controlled-training-evidence
+LARGER_DEVELOPMENT_RUN_DIR ?= runs/larger-development
+TRAINING_BUNDLE ?= controlled_training_bundle-4
 
-.PHONY: help install install-data install-gpu test check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate development-smoke controlled-training audit manifest merge-shards docker-build docker-shell
+.PHONY: help install install-data install-gpu test check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate development-smoke controlled-training larger-development-faithfulness audit manifest merge-shards docker-build docker-shell
 
 help:
 	@echo "install       Install the local package"
@@ -24,6 +26,7 @@ help:
 	@echo "training-gate  Run the two-step CUDA gate (set EXPECTED_COMMIT)"
 	@echo "development-smoke  Run/resume the locked 20-item development gate"
 	@echo "controlled-training  Run/resume the paired-vs-constant QLoRA pilot"
+	@echo "larger-development-faithfulness  Run/resume the locked 64-item faithfulness stage"
 	@echo "audit         Audit JSONL splits (set SPLITS='train.jsonl dev.jsonl test.jsonl')"
 	@echo "manifest      Capture a run manifest in RUN_DIR"
 	@echo "merge-shards  Merge result shards (set SHARDS, OUTPUT and ID_FIELD)"
@@ -118,6 +121,15 @@ larger-development-check:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.larger_development check \
 		--project-root . \
 		--protocol protocols/study1/larger_development_protocol.json
+
+larger-development-faithfulness:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.larger_development_faithfulness \
+		--project-root . \
+		--training-bundle $(TRAINING_BUNDLE) \
+		--inference-run-dir $(LARGER_DEVELOPMENT_RUN_DIR) \
+		--expected-commit $(EXPECTED_COMMIT) \
+		--require-clean-git \
+		--required-gpu-substring T4
 
 audit:
 	PYTHONPATH=src $(PYTHON) scripts/audit_splits.py $(SPLITS)

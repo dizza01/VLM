@@ -94,6 +94,18 @@
       "path": "src/gi_vqa/larger_development.py",
       "sha256": "5d7135c07c8da35e4d5d6ce3fb92c14a20b428ad44aceef9187d540da7e7fcb3"
     },
+    "larger_development_runner": {
+      "path": "src/gi_vqa/larger_development_runner.py",
+      "sha256": "4187000e9996c75de5f8044b9534f13361c0a714328443e21ce1a778f3f505b6"
+    },
+    "larger_development_analysis": {
+      "path": "src/gi_vqa/larger_development_analysis.py",
+      "sha256": "e8fb7baaa93d87f722367980c20bc983a03b49d9497e88db1724be476c211403"
+    },
+    "larger_development_faithfulness": {
+      "path": "src/gi_vqa/larger_development_faithfulness.py",
+      "sha256": "0d59d5fae3b28ad07d838ebc93837b99f3050f15bf0954013ca1b41ebf8c5752"
+    },
     "pinned_environment_declaration": {
       "path": "pyproject.toml",
       "sha256": "c6fa71c47a34df83a5927148cf81a5629df19d10bb81dbca29976f915cbf71e8"
@@ -149,6 +161,10 @@
       ]
     },
     "faithfulness": {
+      "conditions": [
+        "paired_correct",
+        "constant_control"
+      ],
       "methods": [
         "decoder_answer_to_image_attention",
         "answer_conditioned_grad_cam"
