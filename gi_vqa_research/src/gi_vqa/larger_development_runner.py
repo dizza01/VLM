@@ -402,8 +402,17 @@ def _publish_or_match(path, value):
         handle.write("\n")
         handle.flush()
         os.fsync(handle.fileno())
+    # Colab's mounted Google Drive filesystem does not support hard links.
+    # Atomic replacement is supported and leaves either the previous complete
+    # artifact or this complete temporary file visible after interruption.
     try:
-        os.link(temporary, path)
+        if path.exists():
+            if _object(path) != value:
+                raise LargerDevelopmentRunError(
+                    f"existing artifact differs: {path}"
+                )
+        else:
+            os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
 

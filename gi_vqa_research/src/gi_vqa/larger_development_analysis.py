@@ -270,8 +270,17 @@ def _publish_or_match(path, value):
         handle.write("\n")
         handle.flush()
         os.fsync(handle.fileno())
+    # Mounted Google Drive does not implement hard links. Publish the fully
+    # flushed temporary file with an atomic rename so Colab runs remain
+    # restart-safe.
     try:
-        os.link(temporary, path)
+        if path.exists():
+            if _object(path) != value:
+                raise LargerDevelopmentAnalysisError(
+                    "existing analysis differs"
+                )
+        else:
+            os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
 
