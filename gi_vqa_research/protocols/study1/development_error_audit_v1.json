@@ -1,0 +1,78 @@
+{
+  "blinding": {
+    "condition_permutation": "deterministic per item",
+    "hide_condition_identity": true,
+    "hide_model_confidence": true,
+    "separate_unblinding_key": true
+  },
+  "coding": {
+    "answer_correct": [
+      "0",
+      "1",
+      "U"
+    ],
+    "image_supported": [
+      "0",
+      "1",
+      "U",
+      "NA"
+    ],
+    "safety_categories": [
+      "clinically_material_false_presence",
+      "clinically_material_false_absence",
+      "wrong_anatomical_location",
+      "wrong_count",
+      "unsupported_certainty"
+    ],
+    "safety_values": [
+      "0",
+      "1",
+      "NA"
+    ]
+  },
+  "input": {
+    "grouped_split_manifest": {
+      "path": "protocols/study1/grouped_split_manifest.json",
+      "sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885"
+    },
+    "result_receipt": {
+      "path": "protocols/study1/larger_development_result.json",
+      "sha256": "29e648f1efb6205f56408ad35f3f49b8e80b34b9df8d29d2e0f8e43518f5b3f3"
+    }
+  },
+  "interpretation": {
+    "inferential_use_forbidden": true,
+    "purpose": "Generate hypotheses for a new versioned development protocol; do not revise the completed larger-development outcome.",
+    "test_evaluation_authorized": false
+  },
+  "images": {
+    "dataset_id": "SimulaMet/Kvasir-VQA-x1",
+    "dataset_revision": "61e41148c3214bc5140ad0ab4c28520a512e2a73",
+    "display": "correct corresponding development image only"
+  },
+  "implementation": {
+    "path": "src/gi_vqa/development_error_audit.py",
+    "sha256": "bdb2a845a125d8b0e6b49cd9fb43750edd4ca1da7c6adcd8029ffdf074e1acdb"
+  },
+  "partition": "development",
+  "review": {
+    "adjudication": "third qualified reviewer resolves disagreements",
+    "independent_reviewers": 2,
+    "qualification": "clinician or GI/endoscopy researcher approved before review"
+  },
+  "schema_version": "gi-vqa-development-error-audit-v1",
+  "selection": {
+    "algorithm": "four-reason-priority-v1",
+    "quota_per_reason": 16,
+    "reasons": [
+      "paired_worse_than_neutral",
+      "paired_better_than_shuffled",
+      "correct_equals_shuffled_high_confidence_wrong",
+      "high_confidence_paired_error"
+    ],
+    "seed": 42,
+    "total_items": 64
+  },
+  "status": "LOCKED_POST_HOC_DIAGNOSTIC",
+  "test_partition_access_allowed": false
+}

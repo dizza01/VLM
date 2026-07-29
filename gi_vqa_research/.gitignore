@@ -38,6 +38,8 @@ controlled_evaluation_pilot/
 runs 3/
 larger-development-evidence-*/
 larger-development-evidence-*.zip
+audits/*
+!audits/README.md
 
 # Notebook-generated files
 notebooks/generated/

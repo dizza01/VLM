@@ -28,6 +28,8 @@ reviewable artifacts that define a paper experiment:
   larger development evidence and non-promotion decision)
 - `larger_development_results.md` (reviewable development-only results,
   diagnostics and next-gate constraints)
+- `development_error_audit_v1.json` (locked post-hoc, development-only,
+  blinded error-review design; it cannot change the completed result)
 
 Do not place images, predictions, checkpoints, saliency arrays or secrets here. Those belong in
 the ignored local `runs/` tree and the durable GCS run prefix.
@@ -117,3 +119,11 @@ adapter failed the primary paired-versus-constant comparison and both locked
 grounding checks. It is therefore not promoted, and the official test set
 remains sealed. See `larger_development_result.json` and
 `larger_development_results.md`.
+
+The subsequent error audit is explicitly post-hoc and development-only. Its
+v1 specification selects 64 cases deterministically across four diagnostic
+reasons, assigns condition codes independently per item, hides condition and
+confidence from two reviewer sheets, and stores the unblinding key separately.
+It cannot change the non-promotion decision or authorise test access. Build the
+image-complete reviewer and administrator packs with
+`notebooks/07_colab_build_development_error_audit.ipynb`.

@@ -8,8 +8,10 @@ CONTROLLED_WORK_DIR ?= runs/controlled-training-work
 CONTROLLED_ARTIFACT_DIR ?= runs/controlled-training-evidence
 LARGER_DEVELOPMENT_RUN_DIR ?= runs/larger-development
 TRAINING_BUNDLE ?= controlled_training_bundle-4
+LARGER_DEVELOPMENT_EVIDENCE ?= larger-development-evidence
+ERROR_AUDIT_DIR ?= audits/larger-development-error-audit-v1
 
-.PHONY: help install install-data install-gpu test check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate development-smoke controlled-training larger-development-faithfulness audit manifest merge-shards docker-build docker-shell
+.PHONY: help install install-data install-gpu test check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate development-smoke controlled-training larger-development-faithfulness development-error-audit audit manifest merge-shards docker-build docker-shell
 
 help:
 	@echo "install       Install the local package"
@@ -27,6 +29,7 @@ help:
 	@echo "development-smoke  Run/resume the locked 20-item development gate"
 	@echo "controlled-training  Run/resume the paired-vs-constant QLoRA pilot"
 	@echo "larger-development-faithfulness  Run/resume the locked 64-item faithfulness stage"
+	@echo "development-error-audit  Build the blinded post-hoc development review pack"
 	@echo "audit         Audit JSONL splits (set SPLITS='train.jsonl dev.jsonl test.jsonl')"
 	@echo "manifest      Capture a run manifest in RUN_DIR"
 	@echo "merge-shards  Merge result shards (set SHARDS, OUTPUT and ID_FIELD)"
@@ -130,6 +133,12 @@ larger-development-faithfulness:
 		--expected-commit $(EXPECTED_COMMIT) \
 		--require-clean-git \
 		--required-gpu-substring T4
+
+development-error-audit:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.development_error_audit \
+		--project-root . \
+		--evidence-dir $(LARGER_DEVELOPMENT_EVIDENCE) \
+		--output-dir $(ERROR_AUDIT_DIR)
 
 audit:
 	PYTHONPATH=src $(PYTHON) scripts/audit_splits.py $(SPLITS)
