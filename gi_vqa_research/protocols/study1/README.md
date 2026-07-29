@@ -24,6 +24,10 @@ reviewable artifacts that define a paper experiment:
   selection and shuffled-image mapping)
 - `larger_development_protocol.json` (machine-validated larger development
   preregistration, analysis plan and test-set seal)
+- `larger_development_result.json` (compact hash-bound receipt for the completed
+  larger development evidence and non-promotion decision)
+- `larger_development_results.md` (reviewable development-only results,
+  diagnostics and next-gate constraints)
 
 Do not place images, predictions, checkpoints, saliency arrays or secrets here. Those belong in
 the ignored local `runs/` tree and the durable GCS run prefix.
@@ -104,3 +108,12 @@ neutral-image grounding checks. The machine validator refuses changed inputs,
 non-development selections, incomplete source groups, shuffled fixed points or
 an unlocked test partition. Run `make larger-development-check` before
 implementing or launching the larger runner.
+
+The larger development run completed at commit
+`7ad3807915d0e461ed77d437b6df436eab677992`. All 1,280 inference
+item-conditions and all 128 faithfulness item-conditions completed, their
+tracked evidence hashes match, and no test partition was accessed. The paired
+adapter failed the primary paired-versus-constant comparison and both locked
+grounding checks. It is therefore not promoted, and the official test set
+remains sealed. See `larger_development_result.json` and
+`larger_development_results.md`.

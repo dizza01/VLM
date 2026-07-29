@@ -1,0 +1,81 @@
+{
+  "analysis": {
+    "condition_normalized_token_f1": {
+      "base_correct_descriptive": 0.16502646058684736,
+      "constant_control": 0.311637799346155,
+      "paired_correct": 0.30906611308257037,
+      "paired_neutral_ablation": 0.37611956543123654,
+      "paired_shuffled": 0.29959279772752745
+    },
+    "contrasts": {
+      "grounding_paired_minus_neutral": {
+        "confidence_interval_95": [
+          -0.10611908337867741,
+          -0.02739082020779868
+        ],
+        "mean_difference": -0.06705345234866604,
+        "passed": false
+      },
+      "grounding_paired_minus_shuffled": {
+        "confidence_interval_95": [
+          -0.0059139176581968576,
+          0.025692227143672516
+        ],
+        "mean_difference": 0.009473315355042847,
+        "passed": false
+      },
+      "primary_paired_minus_constant": {
+        "confidence_interval_95": [
+          -0.01628054647143469,
+          0.011056104875840928
+        ],
+        "mean_difference": -0.002571686263584646,
+        "passed": false
+      }
+    },
+    "locked_success_checks": {
+      "neutral_grounding": false,
+      "primary_correctness": false,
+      "shuffled_grounding": false
+    }
+  },
+  "artifacts": {
+    "faithfulness_report_sha256": "8d3e618d8195420c485c96dc5e3b0731ffdd3f1c174b1dd43d56780decec35fb",
+    "final_evidence_manifest_sha256": "2fa412dab3b979a410618ed3fa86ef9a42c49fefe96b9f76b57647e6f9814349",
+    "inference_identity_sha256": "c326d3ec62ee438c355fe8e8cdf117e17f07d13daa4d82b65d8110d02a7c35e5",
+    "inference_status_sha256": "4a72610e194a35111d902be0ef4c8771e5f895c9a0273da67d44ea9514922583",
+    "larger_development_analysis_sha256": "1dee7d0728e94490c8472e41fc89e18fa949926b2648515ec3d8b0d33a2c4b8d"
+  },
+  "completed_item_conditions": {
+    "faithfulness": 128,
+    "inference": 1280
+  },
+  "diagnostic_only": true,
+  "excluded_from_research_results": true,
+  "faithfulness": {
+    "conditions": [
+      "paired_correct",
+      "constant_control"
+    ],
+    "interpretation": "Grad-CAM effects were directionally positive for paired_correct; attention effects were mixed. These descriptive results do not override the failed locked progression criteria.",
+    "items_per_condition": 64,
+    "status": "PASS"
+  },
+  "outcome": {
+    "action": "do_not_promote; revise only under a new versioned development protocol",
+    "promote_paired_image_adapter": false,
+    "test_evaluation_authorized": false
+  },
+  "protocol_sha256": "6940590751a610d5e62278258ecbef329efc474e1d579dc7a3a6e9515fd694b2",
+  "repository_commit": "7ad3807915d0e461ed77d437b6df436eab677992",
+  "runtime": {
+    "gpu": "Tesla T4",
+    "python": "3.11.13",
+    "torch": "2.6.0+cu124",
+    "torch_cuda": "12.4",
+    "transformers": "4.55.0"
+  },
+  "schema_version": "gi-vqa-larger-development-result-v1",
+  "status": "PASS",
+  "test_partition_accessed": false
+}

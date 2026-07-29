@@ -36,6 +36,8 @@ perturbations/
 logs/
 controlled_evaluation_pilot/
 runs 3/
+larger-development-evidence-*/
+larger-development-evidence-*.zip
 
 # Notebook-generated files
 notebooks/generated/
