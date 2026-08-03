@@ -13,17 +13,25 @@ from gi_vqa.controlled_evaluation_runner import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+TRAINING_BUNDLE = PROJECT_ROOT / "controlled_training_bundle-4"
 
 
 class ControlledEvaluationTests(unittest.TestCase):
-    def test_passed_bundle_matches_compact_receipt(self) -> None:
+    def test_protocol_matches_compact_receipt(self) -> None:
         receipt_path = PROJECT_ROOT / "protocols/study1/controlled_training_pass.json"
         protocol = _read_object(
             PROJECT_ROOT / "protocols/study1/controlled_evaluation_pilot.json"
         )
-        receipt = _read_object(receipt_path)
         _validate_protocol(protocol, receipt_path)
-        _validate_training_bundle(PROJECT_ROOT / "controlled_training_bundle-4", receipt)
+
+    @unittest.skipUnless(
+        (TRAINING_BUNDLE / "bundle_manifest.json").is_file(),
+        "requires the ignored controlled-training evidence bundle",
+    )
+    def test_passed_bundle_matches_compact_receipt(self) -> None:
+        receipt_path = PROJECT_ROOT / "protocols/study1/controlled_training_pass.json"
+        receipt = _read_object(receipt_path)
+        _validate_training_bundle(TRAINING_BUNDLE, receipt)
 
     def test_condition_configs_bind_each_adapter(self) -> None:
         base = validate_config(

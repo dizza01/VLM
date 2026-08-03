@@ -13,6 +13,9 @@ from gi_vqa.larger_development import (
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEVELOPMENT_JSONL = (
+    PROJECT_ROOT / "data/processed/study1/development.jsonl"
+)
 
 
 class LargerDevelopmentTests(unittest.TestCase):
@@ -26,6 +29,10 @@ class LargerDevelopmentTests(unittest.TestCase):
         self.assertEqual(tuple(result["conditions"]), CONDITIONS)
         self.assertFalse(result["test_partition_accessed"])
 
+    @unittest.skipUnless(
+        DEVELOPMENT_JSONL.is_file(),
+        "requires materialized ignored development metadata",
+    )
     def test_selection_is_reconstructable_and_has_no_shuffled_fixed_points(
         self,
     ) -> None:
