@@ -79,9 +79,9 @@ def run_controlled_training_pilot(
         protocol_file = _resolve_under(repository, protocol_path)
         split_file = _resolve_under(repository, split_manifest_path)
         project_root = protocol_file.parents[2]
-        if project_root.parent != repository:
+        if project_root != repository:
             raise ControlledTrainingRunError(
-                "protocol must be under <repository>/gi_vqa_research/protocols/study1"
+                "protocol must be under <repository>/protocols/study1"
             )
         data = _resolve_under(project_root, data_dir)
         work = Path(work_dir).resolve()

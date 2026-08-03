@@ -1,8 +1,12 @@
 # GI-VQA Research Infrastructure
 
-This directory documents the execution infrastructure for the GI visual
-question-answering research programme. It is intentionally separate from the
-current notebooks and does not replace the Study 1 protocol.
+This repository contains reproducible execution infrastructure for the GI
+visual question-answering research programme. Scientific choices are recorded
+in versioned protocols rather than hidden in notebook state.
+
+See [ARTIFACT_POLICY.md](ARTIFACT_POLICY.md) before downloading data or running
+GPU experiments. The repository does not redistribute Kvasir-VQA-x1 images,
+base-model weights or experiment checkpoints.
 
 The recommended workflow is:
 

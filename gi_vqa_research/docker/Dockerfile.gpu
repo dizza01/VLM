@@ -18,6 +18,5 @@ COPY src ./src
 RUN python -m pip install --no-cache-dir --upgrade pip \
     && python -m pip install --no-cache-dir ".[gpu]"
 
-WORKDIR /workspace/gi_vqa_research
+WORKDIR /workspace/gi-vqa-research
 CMD ["bash"]
-

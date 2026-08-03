@@ -6,17 +6,27 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 .ipynb_checkpoints/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
 
 # Secrets
 .env
 *.key
 *.pem
+*.p12
+*.pfx
+*.credentials.json
+.netrc
 
 # Data and model caches
 data/*
 !data/README.md
 .cache/
 hf_cache/
+wandb/
 
 # Generated run artifacts
 runs/*
@@ -30,10 +40,21 @@ development_smoke_bundle*.zip
 controlled_training_bundle*/
 controlled_training_bundle*.zip
 checkpoints/
+adapters/
+models/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
 predictions/
 attributions/
 perturbations/
 logs/
+evidence/
+evidence_bundle*/
+evidence_bundle*.zip
+artifact_archive*/
+artifact_manifest*.sha256
 controlled_evaluation_pilot/
 runs 3/
 larger-development-evidence-*/
@@ -43,7 +64,10 @@ audits/*
 
 # Notebook-generated files
 notebooks/generated/
+notebooks/**/*.html
 
 # Local infrastructure state
 infra/gcp/local.env
 infra/gcp/*.auto.tfvars
+infra/gcp/.terraform/
+infra/gcp/*.tfstate*

@@ -14,7 +14,7 @@ Install the metadata dependency without the GPU stack:
 python -m pip install -e ".[data]"
 ```
 
-From the `gi_vqa_research` directory, download the pinned public metadata and
+From the repository root, download the pinned public metadata and
 build the source-image-disjoint partitions:
 
 ```bash

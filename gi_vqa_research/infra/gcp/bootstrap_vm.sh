@@ -43,11 +43,7 @@ if [[ -z "$REPO_ROOT" || ! -d "$REPO_ROOT/.git" ]]; then
   exit 1
 fi
 if [[ -z "${PROJECT_ROOT:-}" ]]; then
-  if [[ -f "$REPO_ROOT/gi_vqa_research/pyproject.toml" ]]; then
-    PROJECT_ROOT="$REPO_ROOT/gi_vqa_research"
-  else
-    PROJECT_ROOT="$REPO_ROOT"
-  fi
+  PROJECT_ROOT="$REPO_ROOT"
 fi
 [[ -d "$PROJECT_ROOT" ]] || {
   echo "ERROR: project root does not exist: $PROJECT_ROOT" >&2

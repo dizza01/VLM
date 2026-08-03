@@ -112,7 +112,7 @@
     },
     "runtime_gate": {
       "path": "src/gi_vqa/training_gate.py",
-      "sha256": "bd9bf50b79301d70c7f249443078a6853723d3f9d7e98e9d4e62c54f002d3cb3"
+      "sha256": "88548a4666039d6d90bafa282162ea2017e8409f176eb16a66a9d669c2813130"
     }
   },
   "inputs": {

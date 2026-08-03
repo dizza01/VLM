@@ -462,10 +462,10 @@ def run_training_gate(
         work.mkdir(parents=True, exist_ok=True)
         config_file = _resolve_under(root, config_path)
         project_root = config_file.parents[2]
-        if project_root.parent != root:
+        if project_root != root:
             raise TrainingGateFailure(
                 "training config must be under "
-                "<repository>/gi_vqa_research/configs/study1"
+                "<repository>/configs/study1"
             )
         split_manifest = _resolve_under(root, split_manifest_path)
         image_manifest = _resolve_under(root, image_cache_manifest_path)

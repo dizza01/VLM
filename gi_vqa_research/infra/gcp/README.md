@@ -49,9 +49,8 @@ cells, startup scripts, or VM images.
 The local and remote checkouts should share history through Git. Avoid editing
 the same uncommitted file independently on both machines.
 
-The helpers distinguish the Git repository root from the Python project root.
-When `gi_vqa_research/pyproject.toml` is present, commands run from
-`gi_vqa_research/`. Set `PROJECT_ROOT` only if a different layout is required.
+The Git repository root is also the Python project root. Set `PROJECT_ROOT`
+only if an unusual deployment layout requires it.
 
 ## Configure a shell session
 
@@ -77,19 +76,19 @@ the complete environment.
 Preview:
 
 ```bash
-bash gi_vqa_research/infra/gcp/bootstrap_vm.sh
+bash infra/gcp/bootstrap_vm.sh
 ```
 
 Create the cache/run directories:
 
 ```bash
-bash gi_vqa_research/infra/gcp/bootstrap_vm.sh --apply
+bash infra/gcp/bootstrap_vm.sh --apply
 ```
 
 Dependency installation is a separate opt-in:
 
 ```bash
-INSTALL_DEPS=1 bash gi_vqa_research/infra/gcp/bootstrap_vm.sh --apply
+INSTALL_DEPS=1 bash infra/gcp/bootstrap_vm.sh --apply
 ```
 
 The bootstrap script accepts a committed `uv.lock`, or a requirements lock
@@ -105,7 +104,7 @@ Preview:
 
 ```bash
 RUN_ID="study1-paired-<gitsha>-s42-<utc>" \
-  bash gi_vqa_research/infra/gcp/run_job.sh \
+  bash infra/gcp/run_job.sh \
   --config configs/study1/pilot.yaml -- \
   python -m gi_vqa.train --config configs/study1/pilot.yaml
 ```
@@ -115,7 +114,7 @@ Launch:
 ```bash
 RUN_ID="study1-paired-<gitsha>-s42-<utc>" \
 GCS_RUN_ROOT="gs://your-bucket/runs/study1" \
-  bash gi_vqa_research/infra/gcp/run_job.sh --apply \
+  bash infra/gcp/run_job.sh --apply \
   --config configs/study1/pilot.yaml -- \
   python -m gi_vqa.train --config configs/study1/pilot.yaml
 ```
@@ -151,7 +150,7 @@ Preview:
 ```bash
 RUN_ID="<run-id>" \
 GCS_RUN_ROOT="gs://your-bucket/runs/study1" \
-  bash gi_vqa_research/infra/gcp/sync_run.sh
+  bash infra/gcp/sync_run.sh
 ```
 
 Apply:
@@ -159,7 +158,7 @@ Apply:
 ```bash
 RUN_ID="<run-id>" \
 GCS_RUN_ROOT="gs://your-bucket/runs/study1" \
-  bash gi_vqa_research/infra/gcp/sync_run.sh --apply
+  bash infra/gcp/sync_run.sh --apply
 ```
 
 The sync script does not use a cloud-side delete flag. GCS object versioning is

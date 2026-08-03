@@ -22,13 +22,14 @@ RQ1_INFERENCE_DIR ?= runs/rq1-full-test
 RQ1_FREEZE_RECEIPT ?= $(RQ1_ARTIFACT_DIR)/checkpoint_freeze_receipt.json
 RQ1_ADAPTER_DIR ?= $(RQ1_ARTIFACT_DIR)/adapter/fine_tuned_baseline
 
-.PHONY: help install install-data install-gpu test check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate development-smoke controlled-training larger-development-faithfulness development-error-audit rq1-baseline-check rq1-baseline-plan rq1-training-smoke rq1-training rq1-full-test rq1-analysis rq1-visualizations audit manifest merge-shards docker-build docker-shell
+.PHONY: help install install-data install-gpu test publication-check check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate development-smoke controlled-training larger-development-faithfulness development-error-audit rq1-baseline-check rq1-baseline-plan rq1-training-smoke rq1-training rq1-full-test rq1-analysis rq1-visualizations audit manifest merge-shards docker-build docker-shell
 
 help:
 	@echo "install       Install the local package"
 	@echo "install-data  Install the local package plus metadata dependencies"
 	@echo "install-gpu   Install the provisional GPU dependency reference stack"
 	@echo "test          Run the standard-library unit-test suite"
+	@echo "publication-check  Reject secrets, private paths, outputs and large artifacts"
 	@echo "check-model-config  Validate the complete shared-backend configuration"
 	@echo "prepare-splits  Build source-grouped Study 1 splits and smoke-20 selection"
 	@echo "materialize-splits  Reconstruct ignored split files from their tracked lock"
@@ -66,6 +67,9 @@ install-gpu:
 test:
 	PYTHONPATH=src $(PYTHON) -m unittest discover -s tests -v
 
+publication-check:
+	$(PYTHON) scripts/publication_check.py --history
+
 check-model-config:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.cli config-check \
 		--config $(CONFIG) --model-execution
@@ -100,11 +104,11 @@ image-cache-check:
 
 training-gate:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.training_gate \
-		--config gi_vqa_research/$(CONFIG) \
-		--repository-root .. \
+		--config $(CONFIG) \
+		--repository-root . \
 		--expected-commit $(EXPECTED_COMMIT) \
-		--split-manifest gi_vqa_research/protocols/study1/grouped_split_manifest.json \
-		--image-cache-manifest gi_vqa_research/protocols/study1/smoke_training_image_cache_manifest.json \
+		--split-manifest protocols/study1/grouped_split_manifest.json \
+		--image-cache-manifest protocols/study1/smoke_training_image_cache_manifest.json \
 		--work-dir $(GATE_WORK_DIR) \
 		--artifact-dir $(GATE_ARTIFACT_DIR) \
 		--required-gpu-substring T4
@@ -121,10 +125,10 @@ development-smoke:
 
 controlled-training:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.controlled_training_runner \
-		--repository-root .. \
+		--repository-root . \
 		--expected-commit $(EXPECTED_COMMIT) \
-		--protocol gi_vqa_research/protocols/study1/controlled_training_pilot.json \
-		--split-manifest gi_vqa_research/protocols/study1/grouped_split_manifest.json \
+		--protocol protocols/study1/controlled_training_pilot.json \
+		--split-manifest protocols/study1/grouped_split_manifest.json \
 		--data-dir data/controlled_training_pilot \
 		--work-dir $(CONTROLLED_WORK_DIR) \
 		--artifact-dir $(CONTROLLED_ARTIFACT_DIR) \
@@ -160,7 +164,7 @@ development-error-audit:
 
 rq1-training-smoke:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_training_runner run \
-		--repository-root .. \
+		--repository-root . \
 		--project-root . \
 		--protocol $(RQ1_PROTOCOL) \
 		--data-dir $(RQ1_DATA_DIR) \
@@ -172,7 +176,7 @@ rq1-training-smoke:
 
 rq1-training:
 	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_training_runner run \
-		--repository-root .. \
+		--repository-root . \
 		--project-root . \
 		--protocol $(RQ1_PROTOCOL) \
 		--data-dir $(RQ1_DATA_DIR) \
@@ -229,5 +233,5 @@ docker-build:
 	docker build -f docker/Dockerfile.gpu -t gi-vqa-research:gpu .
 
 docker-shell:
-	docker run --rm -it --gpus all -v "$$(pwd):/workspace/gi_vqa_research" \
-		-w /workspace/gi_vqa_research gi-vqa-research:gpu bash
+	docker run --rm -it --gpus all -v "$$(pwd):/workspace/gi-vqa-research" \
+		-w /workspace/gi-vqa-research gi-vqa-research:gpu bash

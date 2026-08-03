@@ -146,7 +146,7 @@ Use the project Make targets so paths and parameters come from versioned
 profiles. On the clean, exact GCP checkout:
 
 ```bash
-cd gi_vqa_research
+cd gi-vqa-research
 export EXPECTED_COMMIT="$(git rev-parse HEAD)"
 export RQ1_PROTOCOL="protocols/study1/rq1_full_baseline_protocol_v1.json"
 export RQ1_WANDB_MODE="online"

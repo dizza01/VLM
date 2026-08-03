@@ -83,11 +83,7 @@ REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || true)}"
   exit 1
 }
 if [[ -z "${PROJECT_ROOT:-}" ]]; then
-  if [[ -f "$REPO_ROOT/gi_vqa_research/pyproject.toml" ]]; then
-    PROJECT_ROOT="$REPO_ROOT/gi_vqa_research"
-  else
-    PROJECT_ROOT="$REPO_ROOT"
-  fi
+  PROJECT_ROOT="$REPO_ROOT"
 fi
 [[ -d "$PROJECT_ROOT" ]] || {
   echo "ERROR: project root does not exist: $PROJECT_ROOT" >&2
@@ -111,7 +107,7 @@ fi
 
 WORK_ROOT="${GI_VQA_WORK_ROOT:-$HOME/gi-vqa-work}"
 RUN_DIR="$WORK_ROOT/runs/$RUN_ID"
-SYNC_SCRIPT="$REPO_ROOT/gi_vqa_research/infra/gcp/sync_run.sh"
+SYNC_SCRIPT="$PROJECT_ROOT/infra/gcp/sync_run.sh"
 COMMAND=("$@")
 printf -v COMMAND_TEXT '%q ' "${COMMAND[@]}"
 COMMAND_TEXT="${COMMAND_TEXT% }"
