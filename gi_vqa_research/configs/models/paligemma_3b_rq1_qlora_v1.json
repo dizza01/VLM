@@ -1,0 +1,68 @@
+{
+  "backend": {
+    "implementation": "gi_vqa.backends.paligemma.PaliGemmaBackend",
+    "name": "transformers-paligemma",
+    "supports_full_test_runner": true
+  },
+  "evaluation": {
+    "attention_implementation": "eager",
+    "batch_size": 1,
+    "deterministic_generation": true,
+    "do_sample": false,
+    "max_new_tokens": 64,
+    "num_beams": 1,
+    "precision": "float16"
+  },
+  "model": {
+    "architecture": "paligemma",
+    "base_model": "google/paligemma-3b-pt-224",
+    "base_model_revision": "35e4f46485b4d07967e7e9935bc3786aad50687c",
+    "image_size": [
+      224,
+      224
+    ],
+    "parameter_scale": "3b",
+    "processor": "google/paligemma-3b-pt-224",
+    "processor_revision": "35e4f46485b4d07967e7e9935bc3786aad50687c",
+    "processor_use_fast": false,
+    "prompt_template": "paligemma",
+    "training_template": "gi_vqa_paligemma_v1"
+  },
+  "profile_id": "paligemma-3b-rq1-qlora-v1",
+  "scaling_contract": {
+    "fields_expected_to_change_for_another_model": [
+      "model.base_model",
+      "model.base_model_revision",
+      "model.processor",
+      "model.processor_revision",
+      "model.image_size",
+      "model.parameter_scale",
+      "training.max_length",
+      "training.per_device_train_batch_size",
+      "training.gradient_accumulation_steps",
+      "training.quantization",
+      "hardware.minimum_gpu_memory_gb"
+    ],
+    "new_backend_implementation_required_when_architecture_changes": true,
+    "profile_copy_must_receive_a_new_profile_id": true
+  },
+  "schema_version": "gi-vqa-model-profile-v1",
+  "training": {
+    "attention_implementation": "eager",
+    "bnb_4bit_compute_dtype": "float16",
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": true,
+    "freeze_aligner": false,
+    "freeze_vision_tower": false,
+    "gradient_checkpointing": true,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "lora_rank": 16,
+    "lora_target_modules": "all-linear",
+    "max_length": 384,
+    "precision": "float16",
+    "quantization": "bnb-nf4-4bit",
+    "train_type": "lora",
+    "tuner_backend": "peft"
+  }
+}

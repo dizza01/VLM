@@ -10,8 +10,19 @@ LARGER_DEVELOPMENT_RUN_DIR ?= runs/larger-development
 TRAINING_BUNDLE ?= controlled_training_bundle-4
 LARGER_DEVELOPMENT_EVIDENCE ?= larger-development-evidence
 ERROR_AUDIT_DIR ?= audits/larger-development-error-audit-v1
+RQ1_PROTOCOL ?= protocols/study1/rq1_full_baseline_protocol_v1.draft.json
+RQ1_PLAN ?= runs/rq1-baseline-plan.json
+RQ1_WANDB_MODE ?= online
+RQ1_REPORT ?= runs/rq1-full-test/rq1_benchmark_report.json
+RQ1_FIGURES ?= runs/rq1-full-test/figures
+RQ1_DATA_DIR ?= runs/rq1-training-data
+RQ1_WORK_DIR ?= runs/rq1-training-work
+RQ1_ARTIFACT_DIR ?= runs/rq1-training-evidence
+RQ1_INFERENCE_DIR ?= runs/rq1-full-test
+RQ1_FREEZE_RECEIPT ?= $(RQ1_ARTIFACT_DIR)/checkpoint_freeze_receipt.json
+RQ1_ADAPTER_DIR ?= $(RQ1_ARTIFACT_DIR)/adapter/fine_tuned_baseline
 
-.PHONY: help install install-data install-gpu test check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate development-smoke controlled-training larger-development-faithfulness development-error-audit audit manifest merge-shards docker-build docker-shell
+.PHONY: help install install-data install-gpu test check-model-config prepare-splits materialize-splits split-check prepare-image-cache materialize-image-cache image-cache-check training-gate development-smoke controlled-training larger-development-faithfulness development-error-audit rq1-baseline-check rq1-baseline-plan rq1-training-smoke rq1-training rq1-full-test rq1-analysis rq1-visualizations audit manifest merge-shards docker-build docker-shell
 
 help:
 	@echo "install       Install the local package"
@@ -30,6 +41,13 @@ help:
 	@echo "controlled-training  Run/resume the paired-vs-constant QLoRA pilot"
 	@echo "larger-development-faithfulness  Run/resume the locked 64-item faithfulness stage"
 	@echo "development-error-audit  Build the blinded post-hoc development review pack"
+	@echo "rq1-baseline-check  Validate the RQ1 draft without accessing test"
+	@echo "rq1-baseline-plan  Write the GCP-first RQ1 execution plan"
+	@echo "rq1-training-smoke  Run/resume the non-authoritative 32-item training smoke"
+	@echo "rq1-training  Run/resume locked full training (set EXPECTED_COMMIT)"
+	@echo "rq1-full-test  Run/resume the explicitly authorized locked full test"
+	@echo "rq1-analysis  Build the hash-bound full-test benchmark report"
+	@echo "rq1-visualizations  Render deterministic SVG/CSV benchmark figures"
 	@echo "audit         Audit JSONL splits (set SPLITS='train.jsonl dev.jsonl test.jsonl')"
 	@echo "manifest      Capture a run manifest in RUN_DIR"
 	@echo "merge-shards  Merge result shards (set SHARDS, OUTPUT and ID_FIELD)"
@@ -139,6 +157,63 @@ development-error-audit:
 		--project-root . \
 		--evidence-dir $(LARGER_DEVELOPMENT_EVIDENCE) \
 		--output-dir $(ERROR_AUDIT_DIR)
+
+rq1-training-smoke:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_training_runner run \
+		--repository-root .. \
+		--project-root . \
+		--protocol $(RQ1_PROTOCOL) \
+		--data-dir $(RQ1_DATA_DIR) \
+		--work-dir $(RQ1_WORK_DIR)-smoke \
+		--artifact-dir $(RQ1_ARTIFACT_DIR)-smoke \
+		--expected-commit $(EXPECTED_COMMIT) \
+		--wandb-mode $(RQ1_WANDB_MODE) \
+		--smoke
+
+rq1-training:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_training_runner run \
+		--repository-root .. \
+		--project-root . \
+		--protocol $(RQ1_PROTOCOL) \
+		--data-dir $(RQ1_DATA_DIR) \
+		--work-dir $(RQ1_WORK_DIR) \
+		--artifact-dir $(RQ1_ARTIFACT_DIR) \
+		--expected-commit $(EXPECTED_COMMIT) \
+		--wandb-mode $(RQ1_WANDB_MODE)
+
+rq1-full-test:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_test_runner \
+		--project-root . \
+		--protocol $(RQ1_PROTOCOL) \
+		--freeze-receipt $(RQ1_FREEZE_RECEIPT) \
+		--adapter-dir $(RQ1_ADAPTER_DIR) \
+		--run-dir $(RQ1_INFERENCE_DIR) \
+		--expected-commit $(EXPECTED_COMMIT) \
+		--authorize-test
+
+rq1-analysis:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_analysis \
+		--project-root . \
+		--protocol $(RQ1_PROTOCOL) \
+		--inference-dir $(RQ1_INFERENCE_DIR) \
+		--output $(RQ1_REPORT)
+
+rq1-baseline-check:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_baseline check \
+		--project-root . \
+		--protocol $(RQ1_PROTOCOL)
+
+rq1-baseline-plan:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_baseline plan \
+		--project-root . \
+		--protocol $(RQ1_PROTOCOL) \
+		--wandb-mode $(RQ1_WANDB_MODE) \
+		--output $(RQ1_PLAN)
+
+rq1-visualizations:
+	PYTHONPATH=src $(PYTHON) -m gi_vqa.rq1_visualizations \
+		--report $(RQ1_REPORT) \
+		--output-dir $(RQ1_FIGURES)
 
 audit:
 	PYTHONPATH=src $(PYTHON) scripts/audit_splits.py $(SPLITS)

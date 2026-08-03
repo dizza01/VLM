@@ -1,0 +1,215 @@
+{
+  "analysis": {
+    "bootstrap": {
+      "confidence_level": 0.95,
+      "replicates": 10000,
+      "resampling_unit": "source_img_id",
+      "seed": 42
+    },
+    "headline_metrics": [
+      "normalized_token_f1",
+      "normalized_exact_match",
+      "rouge_l_f1",
+      "corpus_bleu"
+    ],
+    "metric_definitions": {
+      "corpus_bleu": "0-to-1 corpus BLEU-4 over canonical case-folded whitespace tokens with add-one precision smoothing",
+      "normalized_exact_match": "exact equality after canonical Unicode, whitespace and case normalization",
+      "normalized_token_f1": "bag-of-token F1 after canonical Unicode, whitespace and case normalization",
+      "rouge_l_f1": "longest-common-subsequence F1 over canonical case-folded whitespace tokens without stemming"
+    },
+    "operational_metrics": [
+      "completed_items",
+      "failed_items",
+      "mean_answer_token_count",
+      "mean_absolute_answer_token_count_error",
+      "inference_seconds_per_item"
+    ],
+    "strata": [
+      "question_class",
+      "complexity"
+    ],
+    "visualizations": [
+      {
+        "format": [
+          "svg",
+          "csv"
+        ],
+        "id": "headline_metric_comparison",
+        "type": "grouped_bar_with_bootstrap_intervals"
+      },
+      {
+        "format": [
+          "svg",
+          "csv"
+        ],
+        "id": "question_class_token_f1",
+        "type": "condition_by_stratum_heatmap"
+      },
+      {
+        "format": [
+          "svg",
+          "csv"
+        ],
+        "id": "complexity_token_f1",
+        "type": "grouped_bar"
+      },
+      {
+        "format": [
+          "svg",
+          "csv"
+        ],
+        "id": "answer_length_error",
+        "type": "distribution_summary"
+      }
+    ]
+  },
+  "baseline_id": "rq1-kvasir-vqa-x1-full-baseline-v1",
+  "compute": {
+    "authoritative_profile": {
+      "path": "configs/compute/gcp_l4_rq1_v1.json",
+      "sha256": "3ceb68e78bb65d9af31ee6f581b21ade46bf8eb1937da714d2f908f3b7eb1a67"
+    },
+    "larger_model_candidate_profile": {
+      "path": "configs/compute/gcp_a100_80gb_scaling_v1.json",
+      "sha256": "33532a2d918794671ed800df8b50248ebb5d198c19d006e68d12539408f3556f"
+    },
+    "smoke_profile": {
+      "path": "configs/compute/colab_t4_rq1_smoke_v1.json",
+      "sha256": "34151647ba3cf5081498281797a8b0f34d0fc4263224388dc0a994254867b271"
+    }
+  },
+  "data": {
+    "dataset_id": "SimulaMet/Kvasir-VQA-x1",
+    "dataset_revision": "61e41148c3214bc5140ad0ab4c28520a512e2a73",
+    "grouped_split_manifest": {
+      "path": "protocols/study1/grouped_split_manifest.json",
+      "sha256": "6dbd368bb9eba0b9fecf9444564e280cbadf4c51915e1ee8b1ac1787c566b885"
+    },
+    "test": {
+      "expected_records": 15955,
+      "path": "data/processed/study1/official_test.jsonl",
+      "sha256": "c2f84ba4c8539513bae72ed97f9c49e5248a6c5d5616b1f6cc3ea2f47e30691d",
+      "split": "official_test"
+    },
+    "training": {
+      "expected_records": 143594,
+      "path": "data/processed/study1/official_train.jsonl",
+      "sha256": "930b3feb2061113e158b1b7539e2ef3dcb30238bcd23c87695869567b5c98d0a",
+      "split": "official_train"
+    }
+  },
+  "evaluation": {
+    "conditions": [
+      {
+        "adapter": "frozen_final_adapter",
+        "id": "fine_tuned_baseline"
+      },
+      {
+        "adapter": null,
+        "id": "unadapted_base"
+      }
+    ],
+    "expected_items_per_condition": 15955,
+    "failed_item_policy": "the benchmark is incomplete until every item has a valid immutable completion",
+    "generation_order": "condition order followed by official test record order",
+    "partition": "official_test",
+    "resume": true
+  },
+  "governance": {
+    "clinician_validation_phase": "deferred",
+    "confidence_and_failure_modes_rq3": "deferred",
+    "official_test_access": {
+      "allowed_while_status_is_draft": false,
+      "checkpoint_freeze_receipt_required": true,
+      "clean_tagged_commit_required": true,
+      "evaluation_code_hash_required": true,
+      "single_frozen_benchmark_run": true
+    },
+    "visual_faithfulness_rq2": "deferred; prior attribution work is infrastructure and pilot evidence only"
+  },
+  "implementation": {
+    "benchmark_analysis": {
+      "path": "src/gi_vqa/rq1_analysis.py",
+      "sha256": "7b9007cddc13770328c03ea832502a1aa24ed76cc94c90f4f40634e29f3c4c01",
+      "status": "BOUND"
+    },
+    "execution_planner": {
+      "path": "src/gi_vqa/rq1_baseline.py",
+      "sha256": "cc34aa69a469c3c414fb0b45a540c4198e94261a346508d4f5dba5ac5cc73cf6"
+    },
+    "full_test_evaluator": {
+      "path": "src/gi_vqa/rq1_test_runner.py",
+      "sha256": "8e46b367a38bfc4ec9b282cf12fc12b0641810ccc76e724addf65e1470280d3c",
+      "status": "BOUND"
+    },
+    "report_visualizations": {
+      "path": "src/gi_vqa/rq1_visualizations.py",
+      "sha256": "e3e705fa32319041bb35a6f486253600531e0436979aaec836626cd6b323ae13"
+    },
+    "restart_safe_training_runner": {
+      "path": "src/gi_vqa/rq1_training_runner.py",
+      "sha256": "9e6ce788368e06d21c88841cda63c5767c4a78330355ee03050fc6272cc8588b",
+      "status": "BOUND"
+    }
+  },
+  "model_profile": {
+    "path": "configs/models/paligemma_3b_rq1_qlora_v1.json",
+    "sha256": "09108a4cee82d19401dcbb86342507ed45584627c3e2176c62b643e72d07e75b"
+  },
+  "monitoring": {
+    "canonical_evidence": "local run directory synchronized to versioned GCS prefix",
+    "wandb": {
+      "accepted_modes": [
+        "online",
+        "offline",
+        "disabled"
+      ],
+      "authoritative": false,
+      "default_gcp_mode": "online",
+      "group": "rq1-full-baseline-v1",
+      "log": [
+        "training_loss",
+        "learning_rate",
+        "gradient_norm",
+        "examples_per_second",
+        "GPU utilization and memory",
+        "checkpoint step"
+      ],
+      "project": "gi-vqa-rq1",
+      "resume": "allow"
+    }
+  },
+  "parameter_change_policy": {
+    "authoritative_cli_overrides_allowed": false,
+    "instruction": "Copy this protocol or its referenced model profile to a new version, update the identifier and hashes, review it, then commit before execution.",
+    "smoke_only_overrides": [
+      "maximum_records",
+      "maximum_steps",
+      "wandb.mode"
+    ]
+  },
+  "purpose": "Answer RQ1 by benchmarking one frozen parameter-efficiently fine-tuned VLM and its unadapted base model on the complete official Kvasir-VQA-x1 test split.",
+  "schema_version": "gi-vqa-rq1-full-baseline-protocol-v1",
+  "status": "DRAFT_REVIEW_REQUIRED",
+  "training": {
+    "data_order": "seeded training-dataloader shuffle over every official training record",
+    "data_seed": 42,
+    "dataloader_workers": 4,
+    "effective_batch_size": 16,
+    "expected_optimizer_steps": 8975,
+    "full_passes_over_training_records": 1,
+    "gradient_accumulation_steps": 16,
+    "learning_rate": 0.00002,
+    "logging_steps": 20,
+    "lr_scheduler": "cosine",
+    "max_grad_norm": 1.0,
+    "optimizer": "adamw_torch",
+    "per_device_train_batch_size": 1,
+    "save_steps": 359,
+    "save_total_limit": 3,
+    "seed": 42,
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.01
+  }
+}

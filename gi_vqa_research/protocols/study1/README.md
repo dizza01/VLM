@@ -30,6 +30,10 @@ reviewable artifacts that define a paper experiment:
   diagnostics and next-gate constraints)
 - `development_error_audit_v1.json` (locked post-hoc, development-only,
   blinded error-review design; it cannot change the completed result)
+- `rq1_full_baseline_protocol_v1.draft.json` (review-required, test-sealed
+  proposal for the full-train/full-test RQ1 benchmark)
+- `rq1_full_baseline_implementation_plan.md` (GCP, W&B, model-scaling,
+  checkpoint and visualization decisions for RQ1)
 
 Do not place images, predictions, checkpoints, saliency arrays or secrets here. Those belong in
 the ignored local `runs/` tree and the durable GCS run prefix.

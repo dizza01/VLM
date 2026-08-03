@@ -1,0 +1,20 @@
+{
+  "authoritative": true,
+  "accelerator": {
+    "count": 1,
+    "minimum_memory_gb": 22,
+    "name_contains": "L4"
+  },
+  "checkpoint_storage": "persistent VM disk with periodic non-deleting GCS sync",
+  "compute_profile_id": "gcp-l4-rq1-v1",
+  "environment": {
+    "container": "docker/Dockerfile.gpu",
+    "python": "3.11",
+    "torch": "2.6.0+cu124"
+  },
+  "platform": "gcp_gpu_vm",
+  "preemptibility": "on-demand for the frozen full-test run; Spot permitted for restart-tested training",
+  "schema_version": "gi-vqa-compute-profile-v1",
+  "session_independent_execution": "tmux via infra/gcp/run_job.sh",
+  "use": "authoritative RQ1 training and full-test evaluation"
+}
