@@ -272,3 +272,15 @@ about representation alignment.
 - Do not infer trust or appropriate reliance from explanation fluency,
   completeness, or stated user preference.
 
+
+
+## Other Relevant Paper Notes
+- Medical VLMs are known to have factuality, hallucination and uncertainty-calibration problems, so confidence must be evaluated against correctness rather than treated as a performance measure by itself. (MedVIGIL: Evaluating Trustworthy Medical VLMs Under Broken Visual Evidence)
+
+-Matched paired-image and constant-image adapters — a good control. The constant-image adapter estimates how much fine-tuning performance can be obtained from:
+question wording;
+answer frequencies;
+question-type templates;
+medical-language adaptation;
+dataset-specific textual shortcuts.
+That is particularly relevant because medical and surgical VQA systems can perform surprisingly well without using the image meaningfully, owing to linguistic biases. Recent controlled surgical-VQA work similarly uses text-only and visually uninformative conditions to expose such shortcut behaviour (SurgCheck: Do Vision–Language Models Really Look at Images in Surgical VQA?).
