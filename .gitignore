@@ -78,6 +78,10 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Local research data and generated study artifacts
+Kvasir-VQA-x1/
+study_outputs/
+
 # IPython
 profile_default/
 ipython_config.py
