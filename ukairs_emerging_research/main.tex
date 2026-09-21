@@ -1,100 +1,95 @@
-\documentclass[sigconf]{acmart}
+% AAAI-27 Student Abstract and Poster Program draft
+% Track deadline: 28 September 2026
+% Requirement: maximum 2 pages INCLUDING references, AAAI two-column camera-ready style.
+% IMPORTANT before submission:
+%   1. Compile with the official AAAI-27 author kit (aaai27.sty).
+%   2. Replace the phone-number placeholder below.
+%   3. Check the final PDF is no more than 2 pages including references.
+%   4. Submit a separate supplemental PDF/ZIP (<=20 MB), as requested by the CFP.
 
-% UKAIRS Emerging Research / Provocation submission scaffold.
-% Target length: 2 main pages, with references allowed on an additional page.
-% Accessibility: add \Description{...} to every figure and keep tables simple.
+\documentclass[letterpaper]{article}
 
-\settopmatter{printacmref=false}
-\setcopyright{none}
-\renewcommand\footnotetextcopyrightpermission[1]{}
-\pagestyle{plain}
+% Use the official AAAI-27 Author Kit files: aaai2027.sty and aaai2027.bst.
+\usepackage{aaai2027}
 
-\acmConference[UKAIRS 2026]{UK AI Research Symposium}{2026}{United Kingdom}
-\acmBooktitle{UK AI Research Symposium (UKAIRS 2026)}
-\acmYear{2026}
-\acmDOI{}
-\acmISBN{}
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
 
-\title{Auditing Agentic Vision-Language Reasoning in GI Endoscopy}
-\subtitle{Toward Faithful Evidence-Grounded Clinical AI}
+\urlstyle{rm}
+\def\UrlFont{\rm}
 
-\author{Dawud Izza}
-\affiliation{%
-  \institution{University of York}
-  \city{York}
-  \country{United Kingdom}
+% AAAI papers normally use unnumbered sections.
+\setcounter{secnumdepth}{0}
+
+\title{Evaluating Visual Faithfulness in Medical Vision--Language Models}
+
+\author{
+    Dawud Izza\textsuperscript{\rm 1},
+    Frank Soboczenski\textsuperscript{\rm 1}
 }
-\email{dawud.izza@york.ac.uk}
-
-\begin{abstract}
-Medical vision-language models (VLMs) are able to answer questions about clinical images, yet it remains unclear whether their generated explanations are faithful to the visual evidence used for decision-making. This concern becomes more important in agentic VLM systems, where memory, tool use, and iterative reasoning can create plausible but weakly grounded evidence chains. This research uses gastrointestinal (GI) endoscopy as a case study to ask how VQA models and potential agentic workflows should be audited before they are treated as evidence-grounded clinical decision support. Building on preliminary fine-tuning and explanation extraction for GI VQA, the proposed framework evaluates final answers, intermediate tool outputs, memory updates, uncertainty estimates, and multimodal explanations using calibration analysis, counterfactual evidence, grounding consistency, and clinician-facing tasks. The intended contribution is a reusable evaluation protocol and framework for characterising grounding and reasoning risks in safe, evidence-grounded agentic medical AI.
-\end{abstract}
-
-\keywords{vision-language models, agentic AI, medical AI, GI endoscopy, explainability, clinical decision support, multimodal reasoning}
+\affiliations{
+    \textsuperscript{\rm 1}University of York, York, United Kingdom\\
+    Postal address: University of York, York, YO10 5GH, United Kingdom\\
+    Primary author phone: [ADD PHONE NUMBER]\\
+    dawud.izza@york.ac.uk, frank.soboczenski@york.ac.uk
+    % Optional: add a personal/research URL for Dawud if desired.
+}
 
 \begin{document}
 
 \maketitle
 
-\noindent\textbf{UKAIRS theme/topic:} Track B, Life and Health; AI for Clinical Decision Support; AI for Multimodal Health Data.
+\begin{abstract}
+Medical vision--language models (VLMs) can answer questions about clinical images and generate explanations for their predictions, but plausible outputs do not necessarily establish that a model is using the relevant visual evidence. This work investigates visual faithfulness in medical VLMs through three complementary questions: whether answers depend on the supplied image, whether explanations identify evidence that influences model behaviour, and whether confidence responds appropriately when visual evidence is reduced or altered. Gastrointestinal (GI) endoscopy visual question answering (VQA) provides the case study. The proposed evaluation uses controlled image interventions---including correct, shuffled, and neutral visual inputs---together with targeted perturbation of explanation-relevant regions and confidence analysis. An initial implementation provides a resource-efficient VLM fine-tuning and inference pipeline and components for visual attribution and confidence extraction; empirical evaluation is the next stage of the work. The intended contribution is a reproducible evaluation methodology for distinguishing plausible explanations from explanations that are behaviourally linked to clinically relevant visual evidence.
+\end{abstract}
 
-\section{Motivation}
+\section{Motivation and Research Gap}
 
-Gastrointestinal (GI) endoscopy is a visually demanding and safety-critical clinical setting in which diagnostic decisions depend on identifying and interpreting subtle mucosal abnormalities under substantial variation in anatomy, viewpoint, illumination, image quality, bowel preparation, and procedural artefacts~\cite{beg2017quality}. This project aims to contribute to an evaluation framework for auditing evidence faithfulness in agentic medical VLM workflows, as well as a framework for characterising grounding and reasoning risks involving ungrounded tool use, misleading memory updates, and post-hoc rationales.
+GI endoscopy is a visually demanding clinical setting in which relevant findings can vary substantially with anatomy, viewpoint, illumination, image quality, bowel preparation, and procedural artefacts~\cite{beg2017quality}. Recent datasets and shared tasks such as Kvasir-VQA, Kvasir-VQA-x1, and Medico provide image--question--answer pairs for evaluating multimodal reasoning over gastrointestinal imagery~\cite{gautam2024kvasirvqa,gautam2025kvasirvqa,gautam2025medico}. Parameter-efficient adaptation has also shown promise for GI VQA~\cite{peter2026parameterefficient}.
 
+However, answer quality alone is insufficient to establish that a VLM is using the image in the way its explanation implies. Medical VLM evaluations have identified hallucination and weak visual grounding as continuing concerns~\cite{chang2025medheval,liu2026medical}. More generally, a model may exploit linguistic or dataset regularities, continue answering when visual evidence is absent, or provide an apparently coherent explanation whose highlighted evidence is not important to the prediction. In a clinical setting, such explanation--evidence mismatch is especially important because a plausible explanation may encourage reliance without demonstrating visual faithfulness.
 
-\section{Related Work and Gap}
+This work therefore asks three linked questions:
+\begin{enumerate}
+    \item \textbf{Visual dependence:} Does the answer depend on the supplied image?
+    \item \textbf{Explanation faithfulness:} Does the explanation identify evidence that influences the answer?
+    \item \textbf{Confidence sensitivity:} Does model confidence respond when relevant visual evidence is reduced or altered?
+\end{enumerate}
 
-GI endoscopy VQA has recently been formalised through datasets and shared tasks such as Kvasir-VQA, and Medico 2025, which provide image-question-answer pairs for evaluating medical reasoning over gastrointestinal imagery~\cite{gautam2024kvasirvqa,gautam2025kvasirvqa,gautam2025medico}. Early experimental results suggest that domain adaptation and parameter-efficient fine-tuning can improve performance on such tasks~\cite{peter2026parameterefficient}. In parallel, medical VLM benchmarks such as MedHEval and recent studies of medical visual grounding show that hallucinations and weak image grounding remain central risks for medical VLM systems~\cite{chang2025medheval,liu2026medical}.
+\section{Evaluation Approach}
 
-Recent agentic medical-imaging systems, including EndoCogniAgent and other iterative VLM frameworks, extend single-pass reasoning with memory, tool use, retrieval, routing, reflection, and repair~\cite{tang2025endocogniagent,alim2026gaze,sayeedi2026route}. However, agency introduces new failure surfaces because an agent may store unsupported observations, retrieve them as evidence, select an inappropriate tool, misinterpret a tool output, or preserve a misleading intermediate hypothesis~\cite{dash2026untrusted,zhang2026memmorph}.
+The study uses GI VQA as a controlled case study. A fixed question is evaluated under multiple visual-evidence conditions. With the \emph{correct image}, task-relevant evidence is available; with a \emph{shuffled image}, the question is paired with different but plausible GI imagery; and with a \emph{neutral image}, task-relevant visual information is largely removed. Comparing answer quality and confidence across these conditions provides a behavioural test of whether predictions depend on the intended visual input rather than primarily on language cues.
 
-Emerging challenge-style evaluations are consistent with a broader agent-evaluation literature that emphasises sequential clinical decision-making, incomplete information, tool use, and realistic EHR-style environments~\cite{jiang2025medagentbench,schmidgall2024agentclinic}. This motivates hidden stress tests in which structured reasoning traces are judged against incomplete, longitudinal, and sometimes conflicting multimodal evidence, with unsupported or hallucinated claims penalised even when the final prediction is plausible. Existing evaluations still largely emphasise task accuracy, benchmark performance, or hallucination rates. Less is known about whether intermediate agent states, tool outputs, explanations, and memory updates remain faithful to the underlying visual evidence. This creates a safety-critical gap for clinical AI where an agent can produce coherent reasoning while accumulating ungrounded evidence.
+\begin{table}[t]
+\centering
+\small
+\caption{Core visual-evidence interventions.}
+\label{tab:conditions}
+\begin{tabular}{p{0.24\columnwidth} p{0.68\columnwidth}}
+\toprule
+\textbf{Condition} & \textbf{Purpose} \\
+\midrule
+Correct image & Preserve task-relevant visual evidence. \\
+Shuffled image & Replace the paired image with different plausible GI content. \\
+Neutral image & Remove most task-relevant visual information while retaining an image input. \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\section{Research Questions}
+Explanation faithfulness is evaluated separately from answer correctness. Visual regions identified as important by an attribution or explanation method are selectively altered, for example through masking or deletion. The analysis then measures whether the answer or its confidence changes. If an explanation identifies evidence that is genuinely influential, perturbing that evidence should produce a measurable behavioural effect. This moves beyond assessing whether an explanation appears clinically plausible.
 
-This project is guided by three questions. First, how do standalone and agentic VLM systems for GI endoscopy balance answer correctness with clinically coherent multimodal explanations? Second, are the visual highlights, textual explanations, and structured reasoning traces produced by these systems faithful to the image evidence and clinically relevant question context? Third, do uncertainty estimates and confidence-calibration signals reflect answer correctness, explanation faithfulness, missing evidence, conflicting evidence, and corrupted intermediate tool outputs or memory updates?
+Finally, confidence is treated as an additional behavioural signal. Prior work has shown that predictive performance and uncertainty need not be well aligned in VLMs~\cite{kostumov2024uncertainty}. The study therefore examines whether confidence decreases when relevant visual evidence is weakened, removed, or replaced, and whether this sensitivity is associated with changes in answer correctness and explanation behaviour.
 
-\section{Proposed Framework}
+\section{Current Status and Intended Contribution}
 
-The proposed workflow compares a standalone VLM baseline with an agentic VLM pipeline for GI endoscopy. The standalone baseline receives an image or video frame and a clinical question, then produces an answer, uncertainty estimate, and optional explanation. The agentic pipeline additionally supports planned evidence acquisition steps such as lesion localisation, segmentation, retrieval of similar cases, explanation generation, uncertainty-aware validation, and final answer selection.
+Preliminary exploratory work examined GI polyp segmentation using convolutional and transformer-based models together with saliency-based visual explanations. This established an initial image-analysis pipeline and motivated the move from pixel-level predictive performance toward questions of evidence grounding and explanation faithfulness.
 
-\begin{figure}[t]
-  \centering
-  \fbox{\parbox{0.92\columnwidth}{\centering
-  GI image/question $\rightarrow$ VLM planner $\rightarrow$ tool use and evidence state $\rightarrow$ uncertainty-aware validation $\rightarrow$ answer and explanation
-  }}
-  \caption{Planned agentic VLM workflow for uncertainty-aware, evidence-grounded GI endoscopy reasoning.}
-  \Description{A left-to-right workflow showing a gastrointestinal image and question entering a VLM planner, followed by tool use and evidence state, uncertainty-aware validation, and final answer with explanation.}
-  \label{fig:workflow}
-\end{figure}
+Current development focuses on a GI VQA baseline using Kvasir-VQA-x1. The implemented architecture includes a resource-efficient VLM fine-tuning and inference pipeline together with components for extracting visual attribution and answer-confidence signals. The controlled faithfulness experiments described above have not yet been completed; empirical evaluation is the next stage of the work.
 
-The key object of analysis is not only the final answer, but the full evidence chain. Each intermediate step can be audited for whether it is visually grounded, semantically consistent with the question, appropriately uncertain, and causally relevant to the final decision. This is particularly important to understand if memory, reflection, and tool use can preserve or amplify an initially ungrounded observation. The planned audit will also test whether agents acknowledge missing evidence, resolve conflicts between tool outputs, express uncertainty when evidence is insufficient, and avoid importing unsupported findings into the reasoning trace.
+The intended contribution is a reproducible methodology for evaluating whether medical VLM behaviour is visually grounded across answers, explanations, and confidence estimates. GI endoscopy provides a concrete safety-critical testbed, while the evaluation principles are intended to generalise to other medical multimodal tasks. A later validation stage will examine whether the proposed measures align with clinician judgement, and future work may extend the same principles to multi-step and agentic medical AI systems.
 
-\section{Evaluation Plan}
-
-The evaluation will follow the answer-and-explanation structure suggested by emerging GI VQA challenges and datasets~\cite{gautam2025kvasirvqa,gautam2025medico}. First, final-answer performance will be measured using task and language metrics such as accuracy, precision, recall, F1 score, and agreement with reference answers across question types including yes/no, single-choice, multiple-choice, location-related, colour-related, and numerical-count questions. This establishes whether the standalone and agentic systems solve the base VQA task before explanation quality is considered.
-
-Second, multimodal explanations will be assessed for clarity, coherence, medical relevance, consistency with visual evidence, and behavioural safety. Textual justifications will be checked for factual correctness, appropriate uncertainty, and adherence to clinical best practice. Visual explanations will be linked to clinically meaningful terms, such as \emph{polyp}, \emph{ulcer}, \emph{lesion}, and \emph{bleeding}, and compared with available bounding-box, segmentation, or region-level annotations. This tests whether an explanation is not only plausible, but grounded in the image regions relevant to the question.
-
-To move beyond final outputs, the agentic setting will additionally require a structured reasoning trace for each case. Guided by agent-evaluation literature on sequential clinical reasoning and tool-assisted decision-making, each trace will record which evidence was used, which tool outputs were accepted or rejected, how uncertainty was represented, and how missing or conflicting evidence was handled~\cite{jiang2025medagentbench,schmidgall2024agentclinic}. Unsupported, contradictory, or hallucinated claims in the trace will be treated as reasoning-risk events even when the final answer is correct.
-
-Uncertainty quantification will be evaluated as a process-level safety signal, following established approaches for estimating predictive uncertainty in deep learning~\cite{kendall2017uncertainties}. The study will examine whether confidence, predictive entropy, answer disagreement across repeated or ensemble-style runs, and selective abstention behaviour track answer correctness, explanation faithfulness, missing information, and conflicting evidence. Calibration will be assessed using reliability analysis and proper scoring rules, and uncertainty should increase when the available evidence is ambiguous, insufficient, or inconsistent with the reasoning trace.
-
-Robustness to agent-level errors will be evaluated by corrupting intermediate evidence. Example interventions include shifting a segmentation mask, altering a region proposal, replacing a retrieved case with an irrelevant example, or injecting conflicting evidence into memory. The analysis will determine whether the agent detects inconsistencies, seeks corroborating evidence, acknowledges missing information, or incorporates corrupted evidence uncritically.
-
-Finally, a clinician-facing human evaluation will compare answer-only, visual-explanation, and multimodal-explanation conditions. The study will measure whether explanations improve users' ability to identify incorrect model outputs, calibrate confidence appropriately, and avoid inappropriate reliance on plausible but unfaithful explanations.
-
-
-\section{Current Status}
-
-Preliminary work has explored GI polyp segmentation with U-Net and transformer-based models, together with visual explanation and uncertainty-estimation tools. This earlier pipeline motivates the shift from pixel-level segmentation evaluation toward uncertainty-aware, evidence-grounded VQA and agentic reasoning. Current work has begun with a PaliGemma-based GI VQA pipeline. A notebook fine-tunes \texttt{google/paligemma-3b-pt-224} on Kvasir-VQA-x1 using QLoRA/LoRA, 4-bit quantisation, a frozen vision encoder, and sampled validation for resource-constrained experimentation. Initial inference checks use a LoRA adapter for GI question answering, while an explanation wrapper extracts attention maps, Grad-CAM-style saliency, token-level confidence scores, and medical terminology from generated answers. These components are preliminary infrastructure for the proposed audit; they do not yet constitute a completed clinical validation. The next stage is to convert this baseline into an agentic evidence-validation workflow and evaluate whether each reasoning step remains grounded in clinically relevant visual evidence.
-
-\begin{acks}
-This work is supported by UK Research & Innovation (UKRI) grant number EP/Y030540/1
-\end{acks}
-
-\bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
 
 \end{document}
