@@ -2,10 +2,9 @@
 % Track deadline: 28 September 2026
 % Requirement: maximum 2 pages INCLUDING references, AAAI two-column camera-ready style.
 % IMPORTANT before submission:
-%   1. Compile with the official AAAI-27 author kit (aaai27.sty).
-%   2. Replace the phone-number placeholder below.
-%   3. Check the final PDF is no more than 2 pages including references.
-%   4. Submit a separate supplemental PDF/ZIP (<=20 MB), as requested by the CFP.
+%   1. Compile with the official AAAI-27 author kit (aaai2027.sty).
+%   2. Check the final PDF is no more than 2 pages including references.
+%   3. Submit a separate supplemental PDF/ZIP (<=20 MB), as requested by the CFP.
 
 
 \documentclass[letterpaper]{article}
@@ -32,9 +31,9 @@
     Frank Soboczenski\textsuperscript{\rm 1}
 }
 \affiliations{
-    \textsuperscript{\rm 1}University of York, United Kingdom\\
-    dawud.izza@york.ac.uk, frank.soboczenski@york.ac.uk
-    % Optional: add a personal/research URL for Dawud if desired.
+    \textsuperscript{\rm 1}Institute for Safe Autonomy, University of York, York, YO10 5FT\\
+    dawud.izza@york.ac.uk, frank.soboczenski@york.ac.uk\\
+    +44 (0)1904 324766
 }
 
 \begin{document}
@@ -47,7 +46,7 @@ Medical vision--language models (VLMs) can answer questions about clinical image
 
 \section{Motivation and Research Gap}
 
-GI endoscopy is a visually demanding clinical setting in which relevant findings can vary substantially with anatomy, viewpoint, illumination, image quality, bowel preparation, and procedural artefacts~\cite{beg2017quality}. Recent datasets and shared tasks such as Kvasir-VQA, Kvasir-VQA-x1, and Medico provide image--question--answer pairs for evaluating multimodal reasoning over gastrointestinal imagery~\cite{gautam2024kvasirvqa,gautam2025kvasirvqa,gautam2025medico}. Parameter-efficient adaptation has also shown promise for GI VQA~\cite{peter2026parameterefficient}.
+GI endoscopy is a visually demanding clinical setting in which relevant findings can vary substantially with anatomy, viewpoint, illumination, image quality, bowel preparation, and procedural artefacts~\cite{beg2017quality}. Recent datasets and shared tasks such as Kvasir-VQA, Kvasir-VQA-x1, and Medico provide image--question--answer pairs for evaluating multimodal reasoning over gastrointestinal imagery~\cite{gautam2024kvasirvqa,gautam2025kvasirvqa,gautam2025medico}. Parameter-efficient adaptation is a practical approach for GI VQA and has shown promise in prior work~\cite{peter2026parameterefficient}. We therefore compare a paired-image adapter with a constant-image control to separate VQA adaptation gains from visual-grounding gains.
 
 \section{Related Work and Gap}
 
@@ -107,9 +106,24 @@ Abnormality presence & 32 & $+0.2808$ \\
 \end{tabular}
 \end{table}
 
-Confidence was not aligned with answer performance: correct-image confidence exceeded neutral and constant-gray confidence by 0.0411 despite their higher F1, and exceeded blurred-correct confidence by 0.0105. Grad-CAM intervention effects averaged $+0.0285$ for blur deletion and $+0.0622$ for blur insertion, whereas attention effects ranged from $-0.0424$ to $+0.0276$. The largest category-specific reversal was finding presence; this exploratory result motivates further controls rather than establishing a general category effect.
+Confidence was not aligned with answer performance: correct-image confidence exceeded neutral and constant-gray confidence by 0.0411 despite their higher F1, and exceeded blurred-correct confidence by 0.0105. On the 64-item attribution-intervention subset, Grad-CAM effects averaged $+0.0285$ for blur deletion and $+0.0622$ for blur insertion, whereas attention effects ranged from $-0.0424$ to $+0.0276$. The largest category-specific reversal was finding presence; this exploratory result motivates further controls rather than establishing a general category effect.
 
-As a secondary semantic check, a blinded 0/1/2 rubric was applied by GPT-4.1 to all 2,048 item-conditions and by Gemini 3.8 Flash to a deterministic 50\% subset. Their correct-minus-neutral mean label contrasts were $-0.348$ and $-0.242$, respectively, with 89.5--94.5\% exact agreement on the shared subset. The judges therefore reproduce the neutral advantage, but remain post-hoc evaluators rather than clinical adjudicators.
+\begin{table}[t]
+\centering
+\small
+\caption{Secondary blinded semantic-judge check. Values are mean rubric labels (0 = incorrect, 1 = partial, 2 = correct).}
+\label{tab:llm-judges}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Judge} & \textbf{Correct} & \textbf{Neutral} & \textbf{Correct--neutral} \\
+\midrule
+GPT-4.1 & 0.996 & 1.268 & $-0.348$ \\
+Gemini 3.8 Flash & 1.043 & \textbf{1.273} & $-0.242$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+GPT-4.1 judged all 2,048 item-conditions and Gemini 3.8 Flash judged a deterministic 50\% subset. Both judges reproduce the neutral advantage, with 89.5--94.5\% exact agreement on the shared subset; they remain post-hoc evaluators rather than clinical adjudicators.
 
 The paired-versus-constant comparison changes both the trained adapter and the image condition, so it is not a clean causal comparison. The shuffled, neutral, blurred, and gray conditions are the stronger same-adapter visual-ablation tests. All reported results are preliminary and development-only; the sealed test partition was not accessed. The intended contribution is a reproducible methodology for distinguishing visual sensitivity and intervention effects from faithful visual grounding in medical VLMs.
 
