@@ -94,7 +94,28 @@ Preliminary exploratory work examined GI polyp segmentation using convolutional 
 
 Current development focuses on a GI VQA baseline using Kvasir-VQA-x1. The implemented architecture includes a resource-efficient VLM fine-tuning and inference pipeline together with components for extracting visual attribution and answer-confidence signals. Two independent seeds completed the controlled development evaluation. The pooled normalized token-F1 scores were 0.3605 for the correct image, 0.3427 for blurred-correct, and 0.3916 for both neutral and constant-gray controls. Thus, blurring produced a modest reduction (correct minus blurred: $+0.0178$), but neutral unexpectedly exceeded correct (correct minus neutral: $-0.0311$). The neutral and constant-gray images had different hashes for every item, yet produced identical predictions and confidence values item by item.
 
+\begin{table}[t]
+\centering
+\small
+\caption{Pooled development performance. Fine-tuning improves over the unadapted base, but the gain is not uniquely visual.}
+\label{tab:performance}
+\begin{tabular}{lr}
+\toprule
+\textbf{Condition} & \textbf{Token-F1} \\
+\midrule
+Unadapted base + correct image & 0.1650 \\
+Constant-image adapter + neutral & 0.3309 \\
+Paired adapter + correct image & 0.3605 \\
+Paired adapter + neutral image & 0.3916 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The paired adapter therefore improves over the unadapted PaliGemma baseline by $+0.1955$ F1, while the constant-image adapter improves by $+0.1659$. This establishes a VQA adaptation benefit, but not a reliable benefit from the corresponding image.
+
 Confidence was not aligned with answer performance: correct-image confidence exceeded neutral and constant-gray confidence by 0.0411 despite their higher F1, and exceeded blurred-correct confidence by 0.0105. Existing attribution interventions show positive Grad-CAM effects, while attention effects are mixed across intervention types and seeds. The results therefore indicate visual sensitivity without establishing faithful use of the clinically corresponding image. The neutral advantage is concentrated in finding-presence questions and motivates further controls and clinician adjudication.
+
+As a secondary semantic check, a blinded 0/1/2 rubric was applied by GPT-4.1 to all 2,048 item-conditions and by Gemini 3.8 Flash to a deterministic 50\% subset. Their correct-minus-neutral mean label contrasts were $-0.348$ and $-0.242$, respectively, with 89.5--94.5\% exact agreement on the shared subset. The judges therefore reproduce the neutral advantage, but remain post-hoc evaluators rather than clinical adjudicators.
 
 The paired-versus-constant comparison changes both the trained adapter and the image condition, so it is not a clean causal comparison. The shuffled, neutral, blurred, and gray conditions are the stronger same-adapter visual-ablation tests. All reported results are preliminary and development-only; the sealed test partition was not accessed. The intended contribution is a reproducible methodology for distinguishing visual sensitivity from faithful visual grounding in medical VLMs.
 
