@@ -61,7 +61,7 @@ This work therefore asks three linked questions:
 
 \section{Evaluation Approach}
 
-The study uses GI VQA as a controlled case study. We adapt PaliGemma~\cite{beyer2024paligemma} using 256 training source images and evaluate four questions per source on a locked 256-source development selection, with no access to the test partition. The main comparison holds the paired-image adapter fixed while replacing the corresponding image with a shuffled image, a neutral image, a blurred version of the correct image, or a constant-gray image. A constant-image adapter provides a descriptive question-prior control, while the unadapted base model provides a reference point. Normalized token-level F1 score is the primary answer metric; sequence confidence, calibration, and paired confidence contrasts are secondary behavioural measures.
+The study uses GI VQA as a controlled case study. We adapt PaliGemma~\cite{beyer2024paligemma} using 256 training source images and evaluate four questions per source on a locked 256-source development selection, with no access to the test partition. The main comparison holds the paired-image adapter fixed while replacing the corresponding image with a shuffled image, a neutral image, a blurred version of the correct image, or a constant-gray image. A constant-image adapter provides a descriptive question-prior control, while the unadapted base model provides a reference point. Normalized token-level F1 score is the primary answer metric; sequence confidence and paired confidence contrasts are secondary behavioural measures. Calibration-error and Brier-score results are reported in the supplement.
 
 Attribution intervention sensitivity is evaluated separately from answer correctness. Regions selected by Grad-CAM~\cite{selvaraju2017gradcam} or decoder attention are blurred or replaced, and changes in the answer or confidence are measured. These interventions test whether selected regions influence behaviour; they do not by themselves establish clinically faithful explanations.
 
@@ -93,7 +93,7 @@ The paired adapter therefore improves over the unadapted PaliGemma baseline by $
 \begin{table}[t]
 \centering
 \small
-\caption{Exploratory category breakdown of correct-minus-neutral token-F1. Categories are multi-label and are not independent tests.}
+\caption{Selected exploratory question-category contrasts for correct-minus-neutral token-F1; the reported category breakdown is provided in the supplement. Categories are multi-label and are not independent tests.}
 \label{tab:categories}
 \begin{tabular}{lrr}
 \toprule
