@@ -41,35 +41,31 @@
 \maketitle
 
 \begin{abstract}
-Medical vision--language models (VLMs) can answer questions about clinical images, but answer accuracy alone does not establish that the corresponding image was used. We present a preliminary, development-only study of visual dependence, confidence sensitivity, and attribution-intervention sensitivity in gastrointestinal (GI) endoscopy visual question answering (VQA). We fine-tune paired-image and constant-image adapters, then evaluate controlled image interventions on a locked development selection. Across two seeds, the model is sensitive to image identity, but a neutral image unexpectedly outperforms the corresponding image. This result demonstrates both the value of behavioural visual controls and the danger of interpreting confidence or plausible answers as evidence of faithful grounding. The study provides a reproducible, test-sealed protocol for distinguishing intervention sensitivity from faithful visual grounding.
+Medical vision--language models (VLMs) can answer questions about clinical images, but answer accuracy alone does not establish that the corresponding image was used. We present a preliminary, development-only study of visual dependence in gastrointestinal (GI) endoscopy visual question answering (VQA), with secondary confidence and exploratory attribution-intervention analyses. We fine-tune paired-image and constant-image adapters, then evaluate controlled image interventions on a locked development selection. Across two independently trained LoRA seeds, model behaviour changes under controlled visual interventions, yet neutral visual input unexpectedly yields higher answer performance than the corresponding image. Fine-tuning therefore provides a VQA adaptation benefit without establishing a corresponding visual-grounding benefit. The study provides a reproducible, test-sealed protocol for distinguishing intervention sensitivity from faithful visual grounding.
 \end{abstract}
 
-\section{Motivation and Research Gap}
+\section{Motivation, Related Work, and Research Gap}
 
-GI endoscopy is a visually demanding clinical setting in which relevant findings can vary substantially with anatomy, viewpoint, illumination, image quality, bowel preparation, and procedural artefacts~\cite{beg2017quality}. Recent datasets and shared tasks such as Kvasir-VQA, Kvasir-VQA-x1, and Medico provide image--question--answer pairs for evaluating multimodal reasoning over gastrointestinal imagery~\cite{gautam2024kvasirvqa,gautam2025kvasirvqa,gautam2025medico}. Parameter-efficient adaptation is a practical approach for GI VQA and has shown promise in prior work~\cite{peter2026parameterefficient}. We therefore compare a paired-image adapter with a constant-image control to separate VQA adaptation gains from visual-grounding gains.
-
-\section{Related Work and Gap}
-
-Answer quality alone is insufficient to establish that a VLM is using the image in the way its explanation implies. Medical VLM evaluations have identified hallucination and weak visual grounding as continuing concerns~\cite{chang2025medheval,liu2026medical}. A model may exploit linguistic or dataset regularities, continue answering when visual evidence is absent, or provide an apparently coherent explanation whose highlighted evidence is not important to the prediction. In a clinical setting, such explanation--evidence mismatch is especially important because a plausible explanation may encourage reliance without demonstrating visual faithfulness.
+GI endoscopy is a visually demanding clinical setting in which relevant findings can vary substantially with anatomy, viewpoint, illumination, image quality, bowel preparation, and procedural artefacts~\cite{beg2017quality}. Recent datasets and shared tasks such as Kvasir-VQA, Kvasir-VQA-x1, and Medico provide image--question--answer pairs for evaluating multimodal reasoning over gastrointestinal imagery~\cite{gautam2024kvasirvqa,gautam2025kvasirvqa,gautam2025medico}. Parameter-efficient adaptation is a practical approach for GI VQA and has shown promise in prior work~\cite{peter2026parameterefficient}. However, answer quality alone does not establish that a VLM uses the image in the way its explanation implies. Medical VLM evaluations identify hallucination and weak visual grounding as continuing concerns~\cite{chang2025medheval,liu2026medical}; a model may exploit linguistic or dataset regularities or provide apparently coherent evidence that is not important to its prediction. We therefore compare a paired-image adapter with a constant-image control to separate VQA adaptation gains from visual-grounding gains.
 
 This work therefore asks three linked questions:
 \begin{enumerate}
-    \item \textbf{Visual dependence:} Does the answer depend on the supplied image?
-    \item \textbf{Intervention sensitivity:} Do attribution-selected regions influence the answer when perturbed?
-    \item \textbf{Confidence sensitivity:} Does model confidence respond when relevant visual evidence is reduced or altered?
+    \item \textbf{Primary---visual dependence:} Does the answer change under controlled image interventions?
+    \item \textbf{Secondary---confidence sensitivity:} Does model confidence respond when visual evidence is reduced or altered?
+    \item \textbf{Exploratory---intervention alignment:} Do attribution-selected regions influence the answer when perturbed?
 \end{enumerate}
 
 \section{Evaluation Approach}
 
 The study uses GI VQA as a controlled case study. We adapt PaliGemma~\cite{beyer2024paligemma} using 256 training source images and evaluate four questions per source on a locked 256-source development selection, with no access to the test partition. The main comparison holds the paired-image adapter fixed while replacing the corresponding image with a shuffled image, a neutral image, a blurred version of the correct image, or a constant-gray image. A constant-image adapter provides a descriptive question-prior control, while the unadapted base model provides a reference point. Normalized token-level F1 score is the primary answer metric; sequence confidence and paired confidence contrasts are secondary behavioural measures. Calibration-error and Brier-score results are reported in the supplement.
 
-Attribution intervention sensitivity is evaluated separately from answer correctness. Regions selected by Grad-CAM~\cite{selvaraju2017gradcam} or decoder attention are blurred or replaced, and changes in the answer or confidence are measured. These interventions test whether selected regions influence behaviour; they do not by themselves establish clinically faithful explanations.
+As an exploratory analysis, attribution intervention sensitivity is evaluated separately from answer correctness on a 64-item subset. Regions selected by Grad-CAM~\cite{selvaraju2017gradcam} or decoder attention are blurred or replaced, and changes in the answer or confidence are measured. These interventions test whether selected regions influence behaviour; they do not by themselves establish clinically faithful explanations.
 
 Finally, confidence is treated as an additional behavioural signal. Prior work has shown that predictive performance and uncertainty need not be well aligned in VLMs~\cite{kostumov2024uncertainty}. The study therefore examines whether confidence decreases when relevant visual evidence is weakened, removed, or replaced, and whether this sensitivity is associated with changes in answer correctness and explanation behaviour.
 
 \section{Current Status and Intended Contribution}
 
-Current development focuses on a GI VQA baseline using Kvasir-VQA-x1. Two independent seeds completed the controlled evaluation. The pooled normalized token-F1 scores were 0.3605 for correct, 0.3427 for blurred-correct, and 0.3916 for both neutral and constant-gray images. Thus, blurring produced a modest reduction (correct minus blurred: $+0.0178$), while neutral exceeded correct (correct minus neutral: $-0.0311$). Neutral and constant-gray images had different hashes for every item, yet produced identical predictions and confidence values item by item.
+Current development focuses on a GI VQA baseline using Kvasir-VQA-x1. Two independently trained LoRA seeds completed the controlled evaluation. The reported pooled normalized token-F1 values average the seed-level means: 0.3605 for correct, 0.3427 for blurred-correct, and 0.3916 for both neutral and constant-gray images. Thus, blurring produced a modest reduction (correct minus blurred: $+0.0178$), while neutral exceeded correct (correct minus neutral: $-0.0311$). Neutral and constant-gray images had different hashes for every item, yet produced identical predictions and confidence values item by item. This suggests that, under these conditions, the paired-image adapter may be insensitive to substantial differences between non-informative visual inputs, despite responding differently to corresponding or blurred images.
 
 \begin{table}[t]
 \centering
@@ -90,23 +86,7 @@ Paired adapter + neutral image & \textbf{0.3916} \\
 
 The paired adapter therefore improves over the unadapted PaliGemma baseline by $+0.1955$ F1, while the constant-image adapter improves by $+0.1659$. This establishes a VQA adaptation benefit, but not a reliable benefit from the corresponding image.
 
-\begin{table}[t]
-\centering
-\small
-\caption{Selected exploratory question-category contrasts for correct-minus-neutral token-F1; the reported category breakdown is provided in the supplement. Categories are multi-label and are not independent tests.}
-\label{tab:categories}
-\begin{tabular}{lrr}
-\toprule
-\textbf{Question category} & \textbf{Items} & \textbf{$\Delta$F1} \\
-\midrule
-Finding presence & 176 & $-0.3866$ \\
-Instrument count & 42 & $+0.2178$ \\
-Abnormality presence & 32 & $+0.2808$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Confidence was not aligned with answer performance: correct-image confidence exceeded neutral and constant-gray confidence by 0.0411 despite their higher F1, and exceeded blurred-correct confidence by 0.0105. On the 64-item attribution-intervention subset, Grad-CAM effects averaged $+0.0285$ for blur deletion and $+0.0622$ for blur insertion, whereas attention effects ranged from $-0.0424$ to $+0.0276$. The largest category-specific reversal was finding presence; this exploratory result motivates further controls rather than establishing a general category effect.
+Confidence was not aligned with answer performance: correct-image confidence exceeded neutral and constant-gray confidence by 0.0411 despite their higher F1, and exceeded blurred-correct confidence by 0.0105. The neutral reversal was concentrated in finding-presence questions (pooled correct-minus-neutral F1: $-0.3866$ across 176 multi-label assignments), an exploratory pattern that motivates further controls rather than establishing a general category effect. On the exploratory 64-item attribution-intervention subset, Grad-CAM effects averaged $+0.0285$ for blur deletion and $+0.0622$ for blur insertion, whereas attention effects ranged from $-0.0424$ to $+0.0276$.
 
 \begin{table}[t]
 \centering
